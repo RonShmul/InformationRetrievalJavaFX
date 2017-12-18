@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="InformationRetrieval-Part A- WithGUI:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/InformationRetrieval_Part_A__WithGUI_jar</output-path>
+    <root id="archive" name="InformationRetrieval-Part A- WithGUI.jar">
+      <element id="module-output" name="InformationRetrieval-Part A- WithGUI" />
+    </root>
+  </artifact>
+</component>
