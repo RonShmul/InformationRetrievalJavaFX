@@ -467,7 +467,7 @@ public class Indexer {
             readFirst.close();
             readSecond.close();
             writeToFile.close();
-            //todo delete the last two files**********************
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

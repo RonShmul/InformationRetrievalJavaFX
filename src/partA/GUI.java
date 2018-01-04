@@ -203,6 +203,8 @@ public class GUI extends Application {
             public void handle(MouseEvent event) {
 
                 controller.loadDictionaryAndCache();
+                showCache.setVisible(true);
+                showDictionary.setVisible(true);
 
             }
         }));

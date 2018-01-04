@@ -2,10 +2,12 @@ package partA;
 
 import javafx.beans.property.SimpleStringProperty;
 
+import java.io.Serializable;
+
 /**
  * Created by Sivan on 12/4/2017.
  */
-public class Term implements Comparable<Term>{
+public class Term implements Serializable, Comparable<Term>{
     private String term;
     private int df;
     private int frequencyInCorup;
