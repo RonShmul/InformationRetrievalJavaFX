@@ -772,12 +772,14 @@ public class Parse {
                     potentialTerm = docText.substring(pos, index);
                 }
 
-                //if end of document - break from the main loop
+                //if end of document - break from the main loop todo: what the hell is this?
                 if (index + 1 >= docText.length() || index == -1 || pos == -1) {
                     updatePotentialTerm(doc.getKey(), potentialTerm, parsedTerms);
                     doc.getKey().setLength(doc.getKey().getLength()+1);
                     break;
                 }
+
+
                 //configure the matcher with the potential term
                 Matcher numberM = numberP.matcher(potentialTerm);
                 Matcher hyphenNumbersM = hyphenNumbersP.matcher(potentialTerm);
@@ -812,8 +814,7 @@ public class Parse {
 
 
                 if (hyphenWordsM.matches()) {   //if its an expression with only words and hyphens
-                    String tempTerm = potentialTerm;
-                    String[] potentialTermsArr = wordsWithHyphen(cleanTerm(tempTerm));
+                    String[] potentialTermsArr = potentialTerm.replaceAll("[^a-zA-Z0-9- ]", "").split("-");
                     for (int i = 0; i < potentialTermsArr.length; i++) {
                         //check if term exists, if not - create one, else - update the existing one
                         updatePotentialTerm(doc.getKey(), potentialTermsArr[i], parsedTerms);
@@ -1340,6 +1341,9 @@ public class Parse {
      * @return String[]
      */
     public String[] upperCaseWords(String str) {
+//todo: ###################################################################################################################################################################
+        String twoWords = str.toLowerCase();
+
         String s = str.toLowerCase();
         String temp = "";
         String[] result = s.split(Pattern.quote(" "));
@@ -1367,25 +1371,7 @@ public class Parse {
      * @param str
      * @return String[]
      */
-    public String[] wordsWithHyphen(String str) {
-        String temp = "";
-        String[] result = str.split(Pattern.quote("-"));
 
-        for (int i = 0; i < result.length; i++) {
-            if(result[i].equals(""))
-                continue;
-            result[i] = cleanTerm(result[i]);
-            result[i].toLowerCase();
-            if (i != result.length - 1)
-                if (!stopWords.contains(result[i])) {
-                    temp = temp + result[i];
-                    if (i != result.length - 1)
-                        temp = temp + " ";
-                }
-        }
-        return temp.split(" ");
-
-    }
 
     /**
      * @param str
@@ -1456,6 +1442,12 @@ public class Parse {
         }
         temp = temp.replaceAll("[\\[\\](){}]|\"|:|;", "");
         return temp;
+    }
+
+    public static void main(String[] args) {
+        String str="hd4789/345-45rjof./f=4r5w3f-3rb6/-45wt";
+        str = str.replaceAll("[^a-zA-Z0-9- ]", "");
+        System.out.println(str);
     }
 
 }
