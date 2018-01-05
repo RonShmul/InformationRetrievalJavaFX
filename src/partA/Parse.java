@@ -1114,58 +1114,38 @@ public class Parse {
                                     String tempNextTerm = cleanTerm(nextTerm);
                                     Matcher nextTermUC = upperCaseP.matcher(tempNextTerm);
 
-                                    while (nextTerm != null && (nextTermUC.matches() || stopWords.contains(tempNextTerm.toLowerCase()))) {//todo toLowerCase? I added..ron?
-                                        //take the last char of the next term to check after that if the next term is at the end of a sentance.
-                                        char lastChar = ' ';
-                                        if (nextTerm.length() > 1) {
-                                            lastChar = nextTerm.charAt(nextTerm.length() - 1);
-                                        }
-                                        //concat the next term because it's also uppercase
+                                    if (nextTermUC.matches()) {
                                         potentialTerm = potentialTerm + " " + tempNextTerm;
-                                        index = nextIndex;
-                                        if (specials.contains(lastChar)) {   //todo check f it works
-                                            //change the pointers to be after the nextTerm (the last nextTerm to concat to the potential term)
-                                            pos = index + 1;
+                                        String[] potentialTerms = upperCaseWords(potentialTerm);
+                                        if (potentialTerms == null) {
+                                            //update the pointers
+                                            if (pos == -1 || index == -1)
+                                                break;
+                                            pos = getPosToAfterWhiteSpaces(index + 1, docText.indexOf(" ", index + 1), docText);
                                             index = docText.indexOf(" ", pos);
-                                            pos = getPosToAfterWhiteSpaces(pos, index, docText);
+                                            if (pos == -1 || index == -1)
+                                                break;
+                                            else continue;
+                                        } else {
+                                            for (int i = 0; i < potentialTerms.length; i++) {
+                                                //insert to data structure each cell in the array
+                                                updatePotentialTerm(doc.getKey(), potentialTerms[i], parsedTerms);
+                                                if (i != potentialTerms.length - 1)
+                                                    doc.getKey().setLength(doc.getKey().getLength() + 1);
+
+                                            }
+                                            //update the pointers
+                                            if (pos == -1 || index == -1)
+                                                break;
+                                            pos = getPosToAfterWhiteSpaces(index + 1, docText.indexOf(" ", index + 1), docText);
                                             index = docText.indexOf(" ", pos);
-                                            break;
-                                        }
-                                        //get the next term
-                                        nextPos = getPosToAfterWhiteSpaces(index + 1, docText.indexOf(" ", index + 1), docText);
-                                        nextIndex = docText.indexOf(" ", nextPos);
-
-                                        if (nextPos != -1 && nextIndex !=-1) {//there is a next term
-                                            nextTerm = docText.substring(nextPos, nextIndex);
-
-                                        } else nextTerm = null;//there is no next term
-                                        if (nextTerm != null) {
-                                            tempNextTerm = cleanTerm(nextTerm);
-                                            nextTermUC = upperCaseP.matcher(tempNextTerm);
-                                        }
-                                    }// and of while
-                                }//there is no next term
-                            }//there is a special character after the potential term
-
-                            if (potentialTerm.contains(" ")) {
-                                String[] potentialTerms = upperCaseWords(potentialTerm);
-                                for (int i = 0; i < potentialTerms.length; i++) {
-                                    //insert to data structure each cell in the array
-                                    updatePotentialTerm(doc.getKey(), potentialTerms[i], parsedTerms);
-                                    if(i != potentialTerms.length -1)
-                                        doc.getKey().setLength(doc.getKey().getLength()+1);
-
-                                }
-                                //update the pointers
-                                if(pos == -1 || index == -1)
-                                    break;
-                                pos = getPosToAfterWhiteSpaces(index+1, docText.indexOf(" ", index+1), docText);
-                                index = docText.indexOf(" ", pos);
-                                if(pos == -1 || index == -1)
-                                    break;
-                                else continue;
-
-                            } else {// potentialTerm is only one word
+                                            if (pos == -1 || index == -1)
+                                                break;
+                                            else continue;
+                                        }//not null so updated both 2 uppercasr words
+                                    } // the nextTerm is not uppercase
+                                } // there is no nextTerm
+                            }//there is a special character after the potential term- potentialTerm is only one word
                                 potentialTerm = potentialTerm.toLowerCase();
                                 potentialTerm = cleanTerm(potentialTerm);
                                 // if this word is stop word. skip it and continue (update the pointers)
@@ -1191,7 +1171,6 @@ public class Parse {
                                         break;
                                     else continue;
                                 } // end of else not a stop words
-                            } // end of else - only one word
                         } // end of else - not a month. expression handle
                     } else { // not an uppercase
                         potentialTerm = cleanTerm(potentialTerm);
@@ -1341,10 +1320,27 @@ public class Parse {
      * @return String[]
      */
     public String[] upperCaseWords(String str) {
-//todo: ###################################################################################################################################################################
         String twoWords = str.toLowerCase();
+        String firstWord = twoWords.substring(0, twoWords.indexOf(" "));
+        String secondWord = twoWords.substring(twoWords.indexOf(" ")+1, twoWords.length());
 
-        String s = str.toLowerCase();
+        firstWord = cleanTerm(firstWord);
+        secondWord = cleanTerm(secondWord);
+
+        if(stopWords.contains(firstWord) && stopWords.contains(secondWord))
+            return null;
+
+          if(stopWords.contains(firstWord)){
+            String[] result = {firstWord + " " + secondWord};
+              return result;
+
+          }
+        else {
+              String[] result = {firstWord, firstWord + " " + secondWord};
+              return result;
+
+          }
+        /*String s = str.toLowerCase();
         String temp = "";
         String[] result = s.split(Pattern.quote(" "));
         s = "";
@@ -1362,7 +1358,7 @@ public class Parse {
         String[] res = temp.split(" ");
         result = Arrays.copyOf(res, result.length + 1);
         result[result.length - 1] = s;
-        return result;
+        return result;*/
     }
 
     /**
@@ -1445,9 +1441,13 @@ public class Parse {
     }
 
     public static void main(String[] args) {
-        String str="hd4789/345-45rjof./f=4r5w3f-3rb6/-45wt";
-        str = str.replaceAll("[^a-zA-Z0-9- ]", "");
-        System.out.println(str);
+        Parse p = new Parse(true);
+        String str="The Movie.";
+        String[] res = p.upperCaseWords(str);
+        for (int i = 0; i < res.length; i++) {
+            System.out.println(res[i] +", ");
+
+        }
     }
 
 }
