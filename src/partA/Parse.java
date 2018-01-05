@@ -16,11 +16,13 @@ public class Parse {
     private Pattern hyphenNumbersP;
     private HashSet<Character> specials;
     private boolean isStemm;
+    private boolean isQuery;
     /**
      * constructor
      */
-    public Parse(boolean isStemm) {
+    public Parse(boolean isStemm, boolean isQuery) {
         this.isStemm = isStemm;
+        this.isQuery = isQuery;
         specials = new HashSet<>();
         stopWords = new HashSet<>();
         months = new HashMap<String, String>();
@@ -1247,8 +1249,10 @@ public class Parse {
      */
     public void updatePotentialTerm(Document doc, String term, HashMap<String, MetaData> map) {
         if(term != null && term != "") {
-            term = term.replaceAll("[^a-zA-Z0-9 ]", "");
+            term = term.replaceAll("[^a-zA-Z0-9. ]", "");
             term = term.toLowerCase();
+            if(term.charAt(term.length()-1)=='.')
+                term = term.substring(0, term.length()-1);
             if (isStemm) {
                 Stemmer stemmer = new Stemmer();
                 stemmer.add(term.toCharArray(), term.length());
@@ -1441,13 +1445,9 @@ public class Parse {
     }
 
     public static void main(String[] args) {
-        Parse p = new Parse(true);
-        String str="The Movie.";
-        String[] res = p.upperCaseWords(str);
-        for (int i = 0; i < res.length; i++) {
-            System.out.println(res[i] +", ");
-
-        }
+        String term = "dgd42.234df.234r54/]35]b.34f 34rfd.wer234ef+45$@#@we.4trd ert23qr2 234.234.24";
+                term = term.replaceAll("[^a-zA-Z0-9. ]", "");
+        System.out.println(term);
     }
 
 }
