@@ -138,7 +138,7 @@ public class Controller {
     }
 
     public List<Term> showDictionary() {
-        List<Term> dictlist = new ArrayList<>(indexer.getDictionary());
+        List<Term> dictlist = new ArrayList<>(/*indexer.getDictionary()*/);
         dictlist.sort(new Comparator<Term>() {
             @Override
             public int compare(Term o1, Term o2) {
