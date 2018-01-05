@@ -41,10 +41,8 @@ public class Indexer {
     public void initialize() {
         //get to the main directory
         File headDir = new File(corpusPath);
-
         //get all the directories from the main directory:
         File[] listOfDirs = headDir.listFiles();
-
         //create new readFile
         ReadFile corpus = new ReadFile(corpusPath);
 
@@ -57,16 +55,13 @@ public class Indexer {
             File currFile = currDir[0];
 
             //create a new parse
-            Parse parse = new Parse(toStemm);
+            Parse parse = new Parse(toStemm, false);
 
             //get all the parsed terms of a specific file
-            HashMap<String, MetaData> termsToIndex = parse.parse(corpus.readFile(currFile));
-
-//            for( Map.Entry<String,MetaData> term : termsToIndex.entrySet()){
-//                System.out.println(term.getKey());
-//            }
+            HashMap<String, MetaData> termsToIndex = parse.InitializeParseForDoc(corpus.readFile(currFile));
             //send to a method that construct the indexing
             constructPosting(termsToIndex);
+            parse.clearTerms();
         }
         mergePosting();
         createCache();
