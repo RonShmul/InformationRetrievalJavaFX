@@ -180,15 +180,10 @@ public class GUI extends Application {
                 if(reset.isDisable()) {
                     reset.setDisable(false);
                 }
-                try {
+
 
                     controller.startIndexing(dataSetPath, locationPath);
-                } catch (Exception e) {
-                    controller.dataAfterIndexing();
-                    TableView<Term> tableDict = createDictionaryView();
 
-
-                }
             }
         }));
         save.setOnMouseClicked((new EventHandler<MouseEvent>() {

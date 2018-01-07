@@ -12,8 +12,6 @@ public class Parse {
     private Pattern wordP;
     private Pattern numberP;
     private Pattern upperCaseP;
-    private Pattern hyphenWordsP;
-    private Pattern hyphenNumbersP;
     private HashSet<Character> specials;
     private boolean isStemm;
     private boolean isQuery;
@@ -32,8 +30,6 @@ public class Parse {
         wordP = Pattern.compile("\\w+(,|)");
         numberP = Pattern.compile("\\d+(,\\d+)*(.\\d+)*(th|)");
         upperCaseP = Pattern.compile("[A-Z][a-z]+|[A-Z]+");
-        hyphenWordsP = Pattern.compile("\\w+((-)+\\w+)+");
-        hyphenNumbersP = Pattern.compile("\\d+(-\\d+)+");
         currDoc = new Document();
         parsedTerms = new HashMap<>();
         specials.add('.'); specials.add(','); specials.add(']'); specials.add('['); specials.add('(');
@@ -223,19 +219,28 @@ public class Parse {
         }
     }
     public void parse(String content) {
+        content = content.replaceAll("-+", " ");
+        content = content.replaceAll("[:;]", ".");
+        content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
+
             int pos =0 ,index = 0;  //updating the pointers
             pos = getPosToAfterWhiteSpaces(pos, index, content);
             index = content.indexOf(" ", pos);
             //the main while running on a document
             while (pos < content.length() && index < content.length() && pos != -1 && index != -1) {
                 String potentialTerm = content.substring(pos, index);
+
                 //while that skip words with tags, stop words, signs and white spaces
-                while (pos != -1 && index != -1 && index + 1 < content.length() && (stopWords.contains(potentialTerm) || potentialTerm.contains("<") || potentialTerm.contains(">") || potentialTerm.equals("--")
-                        || potentialTerm.equals("-") || potentialTerm.equals(",")|| potentialTerm.equals("*") || potentialTerm.equals(".") || potentialTerm.equals("+") || potentialTerm.equals("&")) || potentialTerm.equals("") || potentialTerm.equals(" ")) {
+                while (pos != -1 && index != -1 && index + 1 < content.length() && (stopWords.contains(potentialTerm)
+                        || potentialTerm.contains("<") || potentialTerm.contains(">") || potentialTerm.equals("--")
+                        || potentialTerm.equals("-") || potentialTerm.equals(",")|| potentialTerm.equals("*")
+                        || potentialTerm.equals(".") || potentialTerm.equals("+")
+                        || potentialTerm.equals("&")) || potentialTerm.equals("") || potentialTerm.equals(" ")) {
                     pos = getPosToAfterWhiteSpaces(index + 1, content.indexOf(" ", index+1), content);
                     index = content.indexOf(" ", pos);
                     if(pos == -1 || index == -1) break;
                     potentialTerm = content.substring(pos, index);
+
                 }
                 //if end of document - break from the main loop todo: what the hell is this?
                 if (index + 1 >= content.length() || index == -1 || pos == -1) {
@@ -244,35 +249,7 @@ public class Parse {
                 }
                 //configure the matcher with the potential term
                 Matcher numberM = numberP.matcher(potentialTerm);
-                Matcher hyphenNumbersM = hyphenNumbersP.matcher(potentialTerm);
-                String tempTermHyphen = cleanTerm(potentialTerm);
-                Matcher hyphenWordsM = hyphenWordsP.matcher(tempTermHyphen);
-                if (hyphenNumbersM.matches()) { //if its an expression with only numbers and hyphens
-                    String[] potentialTermsArr = potentialTerm.split("-"); //split the numbers to array
-                    for (int i = 0; i < potentialTermsArr.length; i++) { //iterate the array to parse it's terms
-                        potentialTermsArr[i] = numbers(potentialTermsArr[i]); //format the numbers
-                        sendTerm(potentialTermsArr[i]);
-                    }
-                    //update the pointer
-                    if(pos == -1 || index == -1) break;
-                    pos = getPosToAfterWhiteSpaces(index+1, content.indexOf(" ", index+1), content);
-                    index = content.indexOf(" ", pos);
-                    if(pos == -1 || index == -1) break;
-                    else continue;
-                }
 
-                if (hyphenWordsM.matches()) {   //if its an expression with only words and hyphens
-                    String[] potentialTermsArr = potentialTerm.replaceAll("[^a-zA-Z0-9- ]", "").split("-|--|---");
-                    for (int i = 0; i < potentialTermsArr.length; i++) {
-                        sendTerm(potentialTermsArr[i]);
-                    }
-                    //update the pointers
-                    if(pos == -1 || index == -1) break;
-                    pos = getPosToAfterWhiteSpaces(index+1, content.indexOf(" ", index+1), content);
-                    index = content.indexOf(" ", pos);
-                    if(pos == -1 || index == -1) break;
-                    else continue;
-                }
                 if (numberM.find()) {  //checking numbers with signs
                     char first = potentialTerm.charAt(0);
                     if (potentialTerm.length() > 1 && specials.contains(first)) {
@@ -384,7 +361,7 @@ public class Parse {
                             sendTerm(potentialTerm);
                             //update pointers
                             if(pos == -1 || index == -1) break;
-                            pos = getPosToAfterWhiteSpaces(index+1, content.indexOf(" ", index+1), content);
+                            pos = getPosToAfterWhiteSpaces(index+1, content.indexOf(" ", nextIndex+1), content);
                             index = content.indexOf(" ", pos);
                             if(pos == -1 || index == -1) break;
                             else continue;
@@ -585,8 +562,8 @@ public class Parse {
      * @param term
      */
     public void updatePotentialTerm(String term) {
-        if(term != null && !term.equals("")) {
-            term = term.replaceAll("[^a-zA-Z0-9. ]", "");
+        term = term.replaceAll("[^a-zA-Z0-9. ]", "");
+        if(term != null && !term.equals("") && term.length() > 0) {
             term = term.toLowerCase();
             if(term.charAt(term.length()-1)=='.')
                 term = term.substring(0, term.length()-1);
@@ -764,8 +741,9 @@ public class Parse {
     }
 
     public static void main(String[] args) {
-        String term = "dgd42.234df.234r54/]35]b.34f 34rfd.wer234ef+45$@#@we.4trd ert23qr2 234.234.24";
-                term = term.replaceAll("[^a-zA-Z0-9. ]", "");
-        System.out.println(term);
+        String potentialTerm = "- 234-34 df-dsf --- -- 3ew-; sdf: dfsa. ef, sfs@213.com 23edddd#@! fre$%";
+        potentialTerm = potentialTerm.replaceAll("-+", " ");
+        potentialTerm = potentialTerm.replaceAll("[^A-Za-z0-9,.;: ]","");
+        System.out.println(potentialTerm);
     }
 }
