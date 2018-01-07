@@ -17,6 +17,7 @@ public class Parse {
     private boolean isQuery;
     private Document currDoc;
     private HashMap<String, MetaData> parsedTerms;
+    private String parsedQuery;
 
     /**
      * constructor
@@ -210,18 +211,30 @@ public class Parse {
         return parsedTerms;
     }
 
+    public String callParseForQuery(String queryContent){
+        parse(queryContent);
+        return parsedQuery;
+    }
+
+    public void forParsedQuery(String term){
+        if(parsedQuery=="")
+            parsedQuery = term;
+        else{
+            String temp = " " + term;
+            parsedQuery += temp;
+        }
+    }
+
     public void sendTerm(String term){
         if(isQuery){
-
+            forParsedQuery(term);
         }
         else{
             updatePotentialTerm(term);
         }
     }
     public void parse(String content) {
-        //content = content.replaceAll("-+", " ");
-        //content = content.replaceAll("[:;]", ".");
-        //content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
+        //content = content.replaceAll("-+", " "); content = content.replaceAll("[:;]", "."); content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
             int pos =0 ,index = 0;  //updating the pointers
             pos = getPosToAfterWhiteSpaces(pos, index, content);
             index = content.indexOf(" ", pos);
