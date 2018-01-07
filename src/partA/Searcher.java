@@ -8,30 +8,61 @@ import java.util.regex.Pattern;
 
 public class Searcher {
     private String query;
-    private File queryFile;
+    private File queryFile;  //todo - dont forget in the gui change the path to file
+    private boolean isStemm;
 
-    public Searcher(String query) {
+    public Searcher(String query, boolean isStemm) {
         this.query = query;
+        this.isStemm = isStemm;
     }
 
-    public Searcher(File queryFile) {
+    public Searcher(File queryFile, boolean isStemm) {
         this.queryFile = queryFile;
+        this.isStemm = isStemm;
     }
 
-    public List<String> searchResultForString() {
-        List<String> results = new ArrayList<>();
-        Ranker ranker = new Ranker();
-        //todo: continue after ranker is ready
+    public String parseQuery(){
+        Parse parse = new Parse(isStemm, true);
+        String parsedQuery = parse.callParseForQuery(query);
+        return parsedQuery;
+    }
 
+    public List<String> parseQueriesInFile(){
+        List<String> parsedQueries = new ArrayList<>();
+        try {
+            BufferedReader readQueries = new BufferedReader(new FileReader(queryFile));
+            String line = readQueries.readLine();
+            while(line != null){
+                if(line.contains("<title>")){
+                    String specificQ = line.substring(line.indexOf(" ")+1);
+                    parsedQueries.add(specificQ);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String s : parsedQueries) {
+
+            
+        }
+        return parsedQueries;
+    }
+
+        public List<String> searchResultForString() {
+        List<String> results = new ArrayList<>();
+        String parsedQuery = parseQuery();
+        Ranker ranker = new Ranker();
+        //todo: now the ranker suppose to return the relevant docno
 
         return results;
     }
 
-    public HashMap<String, List<String>> SearchResultForFile(List<String> queries) {
+    public HashMap<String, List<String>> SearchResultForFile() {
+        List<String> parsedQueries = parseQueriesInFile();
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
         Ranker ranker = new Ranker();
-        //todo: continue after ranker is ready
-
+        //todo: now the ranker suppose to return the relevant docno
 
         return results;
     }
