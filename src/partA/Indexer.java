@@ -4,37 +4,34 @@ import java.util.*;
 
 public class Indexer {
 
-    private HashMap<String, Term> tempDictionary;
-    private HashSet<Term> dictionary;
+    private HashMap<String, Term> Dictionary;
     private HashMap<String, String> cache;
     private String corpusPath;
     private String filesPath;
     private int counterForFiles;
     private boolean toStemm;
     private HashMap<String, Double> weights;
-    private static final int N = 486000;
+    private static final int N = 468370;
+
 
     public Indexer(String corpusPath, String filesPath, boolean toStemm) {
         this.toStemm = toStemm;
         this.corpusPath = corpusPath;
         this.filesPath = filesPath;
-        tempDictionary = new HashMap<>();
+        Dictionary = new HashMap<>();
         counterForFiles = 0;
         cache = new HashMap<>();
         weights = new HashMap<>();
 
     }
 
-    public HashSet<Term> getDictionary() {
-        return dictionary;
+    public List<Term> getDictionaryForShow() {
+        List<Term> terms = new ArrayList<>(Dictionary.values());
+        return terms;
     }
 
     public HashMap<String, String> getCache() {
         return cache;
-    }
-
-    public void setDictionary(HashSet<Term> dictionary) {
-        this.dictionary = dictionary;
     }
 
     public void setCache(HashMap<String, String> cache) {
@@ -59,18 +56,15 @@ public class Indexer {
 
             //create a new parse
             Parse parse = new Parse(toStemm, false);
-
+            LinkedHashMap<Document, String> toParse = corpus.readFile(currFile);
             //get all the parsed terms of a specific file
-            HashMap<String, MetaData> termsToIndex = parse.InitializeParseForDoc(corpus.readFile(currFile));
+            HashMap<String, MetaData> termsToIndex = parse.InitializeParseForDoc(toParse);
             //send to a method that construct the indexing
             constructPosting(termsToIndex);
             parse.clearTerms();
         }
         mergePosting();
         createCache();
-        for (Map.Entry<String, String> cacheEntry : cache.entrySet()) {
-            System.out.println(cacheEntry.getKey());
-        }
     }
 
     private void constructPosting(HashMap<String, MetaData> termsToIndex) {
@@ -78,13 +72,13 @@ public class Indexer {
             BufferedWriter temporaryPostingFile = new BufferedWriter(new FileWriter(filesPath + "\\" + counterForFiles));
             LinkedList<String> listToTempPosting = new LinkedList<>();
             for (Map.Entry<String, MetaData> term : termsToIndex.entrySet()) {
-                if (tempDictionary.get(term.getKey()) == null) {
+                if (Dictionary.get(term.getKey()) == null) {
                     Term newTerm = new Term(term.getKey(), term.getValue().getDf(), term.getValue().getFrequencyInCorpus(), -1);
-                    tempDictionary.put(term.getKey(), newTerm);
+                    Dictionary.put(term.getKey(), newTerm);
                 } else {
-                    Term existTerm = tempDictionary.get(term.getKey());
+                    Term existTerm = Dictionary.get(term.getKey());
                     existTerm.setDf(existTerm.getDf() + term.getValue().getDf());
-                    existTerm.setFrequencyInCorup(existTerm.getFrequencyInCorup() + term.getValue().getFrequencyInCorpus());
+                    existTerm.setFrequencyInCorpus(existTerm.getFrequencyInCorpus() + term.getValue().getFrequencyInCorpus());
                 }
                 String toTemp = term.getKey() + ":";
                 for (Map.Entry<Document, Integer> tf : term.getValue().getFrequencyInDoc().entrySet()) {
@@ -181,47 +175,47 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    calculateWeight(sLine);
+                   // calculateWeight(sLine);
                     writeToFile.write(sLine + "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(num);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
+                    Dictionary.get(sTerm).setPointerToPostings(num);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
                     num += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) < 0) {
-                    calculateWeight(fLine);
+                    //calculateWeight(fLine);
                     writeToFile.write(fLine+ "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(num);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
+                    Dictionary.get(fTerm).setPointerToPostings(num);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
                     num += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+                    //calculateWeight(fLine);
                     writeToFile.write(fLine);
-                    tempDictionary.get(sTerm).setPointerToPostings(num);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
+                    Dictionary.get(sTerm).setPointerToPostings(num);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
                     num += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && !(Character.isLetter(sLine.charAt(0)))){
-                calculateWeight(sLine);
+                //calculateWeight(sLine);
                 writeToFile.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(num);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
+                Dictionary.get(sTerm).setPointerToPostings(num);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
                 num += sLine.length() + 1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && !(Character.isLetter(fLine.charAt(0)))){
-                calculateWeight(fLine);
+                //calculateWeight(fLine);
                 writeToFile.write(fLine);
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(num);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
+                Dictionary.get(fTerm).setPointerToPostings(num);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "finalNumbers");
                 num += fLine.length() + 1;
                 fLine = readFirst.readLine();
             }
@@ -232,47 +226,47 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    calculateWeight(sLine);
+                    //calculateWeight(sLine);
                     writeToA.write(sLine + "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(a_e);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
+                    Dictionary.get(sTerm).setPointerToPostings(a_e);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
                     a_e += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    calculateWeight(fLine);
+                   // calculateWeight(fLine);
                     writeToA.write(fLine + "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(a_e);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "A-E");
+                    Dictionary.get(fTerm).setPointerToPostings(a_e);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "A-E");
                     a_e += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+                   // calculateWeight(fLine);
                     writeToA.write(fLine);
-                    tempDictionary.get(sTerm).setPointerToPostings(a_e);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
+                    Dictionary.get(sTerm).setPointerToPostings(a_e);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
                     a_e += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && ae.contains((sLine.substring(0,1)))){
-                calculateWeight(sLine);
+                //calculateWeight(sLine);
                 writeToA.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(a_e);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
+                Dictionary.get(sTerm).setPointerToPostings(a_e);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "A-E");
                 a_e += sLine.length() + 1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && ae.contains((fLine.substring(0,1)))){
-                calculateWeight(fLine);
+                //calculateWeight(fLine);
                 writeToA.write(fLine+"\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(a_e);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "A-E");
+                Dictionary.get(fTerm).setPointerToPostings(a_e);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "A-E");
                 a_e += fLine.length() + 1;
                 fLine = readFirst.readLine();
             }
@@ -284,45 +278,45 @@ public class Indexer {
                 if (fTerm.compareTo(sTerm) >0) {
                     calculateWeight(sLine);
                     writeToF.write(sLine + "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(f_j);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "F-J");
+                    Dictionary.get(sTerm).setPointerToPostings(f_j);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "F-J");
                     f_j += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    calculateWeight(fLine);
+                    //calculateWeight(fLine);
                     writeToF.write(fLine + "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(f_j);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
+                    Dictionary.get(fTerm).setPointerToPostings(f_j);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
                     f_j += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+                   // calculateWeight(fLine);
                     writeToF.write(fLine);
-                    tempDictionary.get(fTerm).setPointerToPostings(f_j);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
+                    Dictionary.get(fTerm).setPointerToPostings(f_j);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
                     f_j += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && fj.contains((sLine.substring(0,1)))){
-                calculateWeight(sLine);
+               // calculateWeight(sLine);
                 writeToF.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(f_j);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "F-J");
+                Dictionary.get(sTerm).setPointerToPostings(f_j);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "F-J");
                 f_j += sLine.length() + 1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && fj.contains((fLine.substring(0,1)))){
-                calculateWeight(fLine);
+             //   calculateWeight(fLine);
                 writeToF.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(f_j);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
+                Dictionary.get(fTerm).setPointerToPostings(f_j);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "F-J");
                 f_j += fLine.length() + 1;
                 fLine = readFirst.readLine();
             }
@@ -334,47 +328,47 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    calculateWeight(sLine);
+                 //   calculateWeight(sLine);
                     writeToK.write(sLine+ "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(k_o);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "K-O");
+                    Dictionary.get(sTerm).setPointerToPostings(k_o);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "K-O");
                     k_o += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm)<0) {
-                    calculateWeight(fLine);
+                  //  calculateWeight(fLine);
                     writeToK.write(fLine+ "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(k_o);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
+                    Dictionary.get(fTerm).setPointerToPostings(k_o);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
                     k_o += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+                  //  calculateWeight(fLine);
                     writeToK.write(fLine);
-                    tempDictionary.get(fTerm).setPointerToPostings(k_o);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
+                    Dictionary.get(fTerm).setPointerToPostings(k_o);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
                     k_o += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && ko.contains((sLine.substring(0,1)))){
-                calculateWeight(sLine);
+               // calculateWeight(sLine);
                 writeToK.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(k_o);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "K-O");
+                Dictionary.get(sTerm).setPointerToPostings(k_o);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "K-O");
                 k_o += sLine.length() + 1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && ko.contains((fLine.substring(0,1)))){
-                calculateWeight(fLine);
+             //   calculateWeight(fLine);
                 writeToK.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(k_o);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
+                Dictionary.get(fTerm).setPointerToPostings(k_o);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "K-O");
                 k_o += fLine.length() + 1;
                 fLine = readFirst.readLine();
             }
@@ -386,47 +380,47 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    calculateWeight(sLine);
+                 //   calculateWeight(sLine);
                     writeToP.write(sLine+ "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(p_t);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "P-T");
+                    Dictionary.get(sTerm).setPointerToPostings(p_t);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "P-T");
                     p_t += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    calculateWeight(fLine);
+               //     calculateWeight(fLine);
                     writeToP.write(fLine+ "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(p_t);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
+                    Dictionary.get(fTerm).setPointerToPostings(p_t);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
                     p_t += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+            //        calculateWeight(fLine);
                     writeToP.write(fLine);
-                    tempDictionary.get(fTerm).setPointerToPostings(p_t);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
+                    Dictionary.get(fTerm).setPointerToPostings(p_t);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
                     p_t += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && pt.contains((sLine.substring(0,1)))){
-                calculateWeight(sLine);
+              //  calculateWeight(sLine);
                 writeToP.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(p_t);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "P-T");
+                Dictionary.get(sTerm).setPointerToPostings(p_t);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "P-T");
                 p_t += sLine.length() + 1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && pt.contains((fLine.substring(0,1)))){
-                calculateWeight(fLine);
+              //  calculateWeight(fLine);
                 writeToP.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(p_t);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
+                Dictionary.get(fTerm).setPointerToPostings(p_t);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "P-T");
                 p_t += fLine.length() + 1;
                 fLine = readFirst.readLine();
             }
@@ -438,47 +432,47 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    calculateWeight(sLine);
+                //    calculateWeight(sLine);
                     writeToU.write(sLine+ "\n");
-                    tempDictionary.get(sTerm).setPointerToPostings(u_z);
-                    tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
+                    Dictionary.get(sTerm).setPointerToPostings(u_z);
+                    Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
                     u_z += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    calculateWeight(fLine);
+               //     calculateWeight(fLine);
                     writeToU.write(fLine+ "\n");
-                    tempDictionary.get(fTerm).setPointerToPostings(u_z);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
+                    Dictionary.get(fTerm).setPointerToPostings(u_z);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
                     u_z += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
                     fLine = fLine.concat(sLine);
                     fLine = fLine.concat("\n");
-                    calculateWeight(fLine);
+                 //   calculateWeight(fLine);
                     writeToU.write(fLine);
-                    tempDictionary.get(fTerm).setPointerToPostings(u_z);
-                    tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
+                    Dictionary.get(fTerm).setPointerToPostings(u_z);
+                    Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
                     u_z += fLine.length();
                     fLine = readFirst.readLine();
                     sLine = readSecond.readLine();
                 }
             }
             while(sLine!=null && uz.contains((sLine.substring(0,1)))){
-                calculateWeight(sLine);
+               // calculateWeight(sLine);
                 writeToU.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                tempDictionary.get(sTerm).setPointerToPostings(u_z);
-                tempDictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
+                Dictionary.get(sTerm).setPointerToPostings(u_z);
+                Dictionary.get(sTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
                 u_z += sLine.length()+1;
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && uz.contains((fLine.substring(0,1)))){
-                calculateWeight(fLine);
+              //  calculateWeight(fLine);
                 writeToU.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
-                tempDictionary.get(fTerm).setPointerToPostings(u_z);
-                tempDictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
+                Dictionary.get(fTerm).setPointerToPostings(u_z);
+                Dictionary.get(fTerm).setPostingFilePath(filesPath + "\\" + "U-Z");
                 u_z += fLine.length()+1;
                 fLine = readFirst.readLine();
             }
@@ -494,7 +488,7 @@ public class Indexer {
 
     public void calculateWeight(String posting){
         String term = posting.substring(0,posting.indexOf(":"));
-        Term t = tempDictionary.get(term);
+        Term t = Dictionary.get(term);
         double idf = Math.log(N/t.getDf());
         String postingDocs = posting.substring(posting.indexOf(":"));
         for(int i=0; i<postingDocs.length(); i=posting.indexOf(",", i)){
@@ -562,49 +556,37 @@ public class Indexer {
 
     }
 
-    public void createCache() {
-        List<Term> allTerms = new ArrayList<>(tempDictionary.values());
+    public void createCacheWordFile() {
+        List<Term> allTerms = new ArrayList<>(Dictionary.values());
         allTerms.sort(new Comparator<Term>() {
             @Override
             public int compare(Term o1, Term o2) {
                 return o1.compareTo(o2);
             }
         });
-        int counter=0;
-
-        for (int i = 0; counter <10000; i++) {
-            try {
-                if(allTerms.get(i).getPostingFilePath()!= null && allTerms.get(i).getTerm()!= null) {
-                    BufferedReader posting = new BufferedReader(new FileReader(new File(allTerms.get(i).getPostingFilePath())));
-                    posting.skip(allTerms.get(i).getPointerToPostings());
-                    String fromPosting = posting.readLine();
-                    if (fromPosting != null) {
-                        int index = 0;
-                        for (int j = 0; j < 3; j++) {
-                            if (index < fromPosting.length())
-                                index = fromPosting.indexOf(",", index + 1);
-                        }
-                        if (index > 0) {
-                            String toCache = fromPosting.substring(fromPosting.indexOf(":") + 1, index);
-                            cache.put(allTerms.get(i).getTerm(), toCache);
-                        } else {
-                            String toCache = fromPosting.substring(fromPosting.indexOf(":") + 1);
-                            cache.put(allTerms.get(i).getTerm(), toCache);
-                        }
-                        counter++;
-                        posting.close();
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("CacheWords")));
+            for (int i = 0; i < 10000; i++) {
+                bufferedWriter.write(allTerms.get(i).getTerm());
+                bufferedWriter.write("\n");
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        dictionary = new HashSet<>(allTerms);
+
     }
 
-    public void resetIndex(String finalPostingFilesPath, String dictionaryFilePath, String caheFilePath) {
+    public void createCache() {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("CacheWords")));
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void resetIndex(String finalPostingFilesPath, String dictionaryFilePath, String caheFilePath) {//todo: fix it
         //delete dictionary file
         File dictionaryFile = new File(dictionaryFilePath);
         dictionaryFile.delete();
