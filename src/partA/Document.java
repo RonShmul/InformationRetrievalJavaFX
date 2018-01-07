@@ -14,6 +14,7 @@ public class Document implements Serializable{ // A class that helps us to save 
     private int maxTf;
 
     public Document() {
+        length = 0;
     }
 
     public Document(String path, String docNo, long positionInFile, int length, String commonTerm) {

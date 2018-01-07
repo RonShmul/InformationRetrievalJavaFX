@@ -219,17 +219,15 @@ public class Parse {
         }
     }
     public void parse(String content) {
-        content = content.replaceAll("-+", " ");
-        content = content.replaceAll("[:;]", ".");
-        content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
-
+        //content = content.replaceAll("-+", " ");
+        //content = content.replaceAll("[:;]", ".");
+        //content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
             int pos =0 ,index = 0;  //updating the pointers
             pos = getPosToAfterWhiteSpaces(pos, index, content);
             index = content.indexOf(" ", pos);
             //the main while running on a document
             while (pos < content.length() && index < content.length() && pos != -1 && index != -1) {
                 String potentialTerm = content.substring(pos, index);
-
                 //while that skip words with tags, stop words, signs and white spaces
                 while (pos != -1 && index != -1 && index + 1 < content.length() && (stopWords.contains(potentialTerm)
                         || potentialTerm.contains("<") || potentialTerm.contains(">") || potentialTerm.equals("--")
@@ -240,7 +238,6 @@ public class Parse {
                     index = content.indexOf(" ", pos);
                     if(pos == -1 || index == -1) break;
                     potentialTerm = content.substring(pos, index);
-
                 }
                 //if end of document - break from the main loop todo: what the hell is this?
                 if (index + 1 >= content.length() || index == -1 || pos == -1) {
@@ -249,7 +246,6 @@ public class Parse {
                 }
                 //configure the matcher with the potential term
                 Matcher numberM = numberP.matcher(potentialTerm);
-
                 if (numberM.find()) {  //checking numbers with signs
                     char first = potentialTerm.charAt(0);
                     if (potentialTerm.length() > 1 && specials.contains(first)) {
@@ -595,7 +591,7 @@ public class Parse {
                 }
             }
         }
-        //currDoc.setLength(currDoc.getLength()+1); todo - update here
+        currDoc.setLength(currDoc.getLength()+1); //todo - update here
     }
     /**
      * function to parse number with percent to be in the format: number percent.
