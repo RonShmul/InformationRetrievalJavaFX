@@ -299,25 +299,29 @@ public class GUI extends Application {
     }
 
     public TableView<Term> createDictionaryView() {
+
+        //create the Table
         TableView<Term> tableDict = new TableView<Term>();
-
-        TableColumn termCol = new TableColumn("Term");
-        TableColumn dfCol = new TableColumn("Document Frequency");
-        TableColumn freqCol = new TableColumn("Frequency In Corpus");
-        termCol.setCellValueFactory(
-                new PropertyValueFactory<Term,String>("Term")
-        );
-        dfCol.setCellValueFactory(
-                new PropertyValueFactory<Term,String>("Document Frequency")
-        );
-        freqCol.setCellValueFactory(
-                new PropertyValueFactory<Term,String>("Frequency In Corpus")
-        );
-
-
+        //create the observable list from the dictionary
         ObservableList<Term> data = FXCollections.observableArrayList(controller.showDictionary());
+
+        //create the Term Column
+        TableColumn<Term, String> termName = new TableColumn<>("Term");
+        termName.setMinWidth(200);
+        termName.setCellValueFactory(new PropertyValueFactory<>("term"));
+
+        //create the df Column
+        TableColumn<Term, Integer> termDF = new TableColumn<>("Document Frequency");
+        termDF.setMinWidth(200);
+        termDF.setCellValueFactory(new PropertyValueFactory<>("df"));
+
+        //create the Term Column
+        TableColumn<Term, Integer> termFIC = new TableColumn<>("frequency In Corpus");
+        termFIC.setMinWidth(200);
+        termFIC.setCellValueFactory(new PropertyValueFactory<>("frequencyInCorpus"));
+
         tableDict.setItems(data);
-        tableDict.getColumns().addAll(termCol, dfCol, freqCol);
+        tableDict.getColumns().addAll(termName, termDF, termFIC);
 
 
         return tableDict;

@@ -1,5 +1,6 @@
 package partA;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Indexer {
@@ -579,11 +580,32 @@ public class Indexer {
     public void createCache() {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("CacheWords")));
-
+            String term = "";
+            while((term = bufferedReader.readLine())!= null) {
+                if(term.equals("") || term.equals("\n"))
+                    break;
+                cache.put(term, "");
+            }
+            bufferedReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
+    public void insertToCache(String postingLine) {
+        if(cache.containsKey(postingLine.substring(0, postingLine.indexOf(":")))) {
+            String docs = postingLine.substring(postingLine.indexOf(":") + 1);
+            int size = (postingLine.length() / 4) + 1;
+
+            for (int i = 0; i < postingLine.length(); i++) {
+                String docno = docs.substring(i, docs.indexOf(":", i));
+                String tf = docs.substring(docs.indexOf(":", i), docs.indexOf(",", i));
+                i = docs.indexOf(",", i);
+
+            }
+        }
     }
 
     public void resetIndex(String finalPostingFilesPath, String dictionaryFilePath, String caheFilePath) {//todo: fix it

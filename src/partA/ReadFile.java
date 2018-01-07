@@ -19,10 +19,10 @@ public class ReadFile {
     private Pattern patternDocNo;
     private Pattern patternText;
 
-    private List<Document> documents;
+    //private List<Document> documents;
 
     public ReadFile(String path){
-        documents = new ArrayList<Document>();
+        //documents = new ArrayList<Document>();
         pathStr = path;
         headDir = new File(pathStr);
         listOfDirs = headDir.listFiles();
@@ -103,7 +103,7 @@ public class ReadFile {
             document.setDocNo(matchDocNo.group());
 //            System.out.println(document.getDocNo());
         }
-        documents.add(document);
+        //documents.add(document);
 
         if(matchText.find()) {
             documentsOfFile.put(document, matchText.group());
@@ -112,9 +112,9 @@ public class ReadFile {
 
     }
 
-    public List<Document> getDocuments() {
-        return documents;
-    }
+    //public List<Document> getDocuments() {
+   //     return documents;
+   // }
 
 
 }

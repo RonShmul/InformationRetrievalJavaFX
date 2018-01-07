@@ -737,9 +737,33 @@ public class Parse {
     }
 
     public static void main(String[] args) {
-        String potentialTerm = "- 234-34 df-dsf --- -- 3ew-; sdf: dfsa. ef, sfs@213.com 23edddd#@! fre$%";
-        potentialTerm = potentialTerm.replaceAll("-+", " ");
-        potentialTerm = potentialTerm.replaceAll("[^A-Za-z0-9,.;: ]","");
-        System.out.println(potentialTerm);
+        List<Integer> numbers = new ArrayList<>();
+        numbers.add(4);
+        numbers.add(56);
+        numbers.add(3);
+        numbers.add(6);
+        numbers.add(8);
+        numbers.add(2);
+        numbers.add(12);
+        numbers.add(19);
+        numbers.add(27);
+        numbers.add(98);
+
+        numbers.sort(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                if(o1 < o2) {
+                    return 1;
+                }
+                else if(o1 > o2) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        for (Integer num:numbers
+             ) {
+            System.out.println(num);
+        }
     }
 }

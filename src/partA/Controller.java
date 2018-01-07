@@ -1,11 +1,6 @@
 package partA;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.*;
@@ -51,7 +46,7 @@ public class Controller {
 
     public String chooseFolder() {
         DirectoryChooser fc = new DirectoryChooser();
-        fc.setTitle("Choose DataSet");
+        fc.setTitle("Choose Folder");
         //fc.setInitialDirectory(new File("resources"));
         File file = fc.showDialog(null);
         String path = null;
@@ -80,7 +75,7 @@ public class Controller {
                 dictAndcachePath = file.getAbsolutePath();
                 ObjectOutputStream objectOutputStreamDict = new ObjectOutputStream(new FileOutputStream(dictionarySavePath));
                 ObjectOutputStream objectOutputStreamCache = new ObjectOutputStream(new FileOutputStream(cacheSavePath));
-                objectOutputStreamDict.writeObject(indexer.getDictionary());
+                objectOutputStreamDict.writeObject(indexer.getDictionaryForShow());
                 objectOutputStreamCache.writeObject(indexer.getCache());
                 objectOutputStreamCache.close();
                 objectOutputStreamDict.close();
@@ -120,7 +115,7 @@ public class Controller {
 //        notifyObservers();
 
     }
-    public void dataAfterIndexing() {
+    /*public void dataAfterIndexing() {
         try {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -135,20 +130,20 @@ public class Controller {
         } catch (Exception e) {
 
         }
-    }
+    }*/ //todo: Check if I need this function
 
     public List<Term> showDictionary() {
-        List<Term> dictlist = new ArrayList<>(/*indexer.getDictionary()*/);
-        dictlist.sort(new Comparator<Term>() {
+        List<Term> terms = indexer.getDictionaryForShow();
+        terms.sort(new Comparator<Term>() {
             @Override
             public int compare(Term o1, Term o2) {
                 return o1.getTerm().compareTo(o2.getTerm());
             }
         });
-        return dictlist;
+        return terms;
     }
 
-    public List<String> showCache() {
+    public List<String> showCache() {//todo: fix it after done making the cache
         List<String> cache = new ArrayList<String>(indexer.getCache().keySet());
         cache.sort(new Comparator<String>() {
             @Override
@@ -160,6 +155,6 @@ public class Controller {
     }
 
     public void reset() {
-        indexer.resetIndex(postingsPath,dictAndcachePath+"dictionary", dictAndcachePath+"cache");
+        indexer.resetIndex(postingsPath,dictAndcachePath+"\\"+"dictionary", dictAndcachePath+"\\"+"cache");
     }
 }
