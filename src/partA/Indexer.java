@@ -14,7 +14,9 @@ public class Indexer {
     private HashMap<String, Double> weights;
     private static final int N = 468370;
 
+    public Indexer() {
 
+    }
     public Indexer(String corpusPath, String filesPath, boolean toStemm) {
         this.toStemm = toStemm;
         this.corpusPath = corpusPath;
@@ -619,7 +621,7 @@ public class Indexer {
     }
 
     public void createCache() {
- /*       try {
+      try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("CacheWords")));
             String term = "";
             while((term = bufferedReader.readLine())!= null) {
@@ -632,23 +634,26 @@ public class Indexer {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } */
+        }
     }
 
     public void insertToCache(String postingLine) {
         if(cache.containsKey(postingLine.substring(0, postingLine.indexOf(":")))) {
             String docs = postingLine.substring((postingLine.indexOf(":") + 1));
-            int size = (((postingLine.length()) / 4) + 1);
-            Map<Integer, String> toSort = new TreeMap<>();
-            for (int i = 0; i < postingLine.length();) {
+            int size = 10;
+            Map<Double, String> toSort = new TreeMap<>();
+            for (int i = 0; i < docs.length();) {
                 String docno = docs.substring(i, docs.indexOf(":", i));
-                Integer tf = Integer.parseInt(docs.substring(docs.indexOf(":", i)+1, docs.indexOf(",", i)));
-                i += (docs.indexOf(",", i));
+                Double tf = Double.parseDouble(docs.substring(docs.indexOf(":", i)+1, docs.indexOf(",", i)));
+                int index = docs.indexOf(",", i);
+                i = index;
+                if(i == -1)
+                    break;
                 i++;
                 toSort.put(tf, docno);
             }
             String toTheCache=postingLine.substring(0, postingLine.indexOf(":")+1) + ":";
-            for (Map.Entry<Integer, String> doc : toSort.entrySet()) {
+            for (Map.Entry<Double, String> doc : toSort.entrySet()) {
                 if(size <= 0)
                     break;
                 String str = doc.getValue() + ":" + doc.getKey() + ",";
