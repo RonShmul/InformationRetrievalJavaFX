@@ -541,7 +541,7 @@ public class Indexer {
                 String docNo = tempPost.substring(0, tempPost.indexOf(":"));
                 tempPost = tempPost.substring(tempPost.indexOf(":")+1);
                 String docTf = tempPost.substring(0, tempPost.indexOf(","));
-                System.out.println(term+ "     " + docNo + "     " + docTf + "    " + i);
+               // System.out.println(term+ "     " + docNo + "     " + docTf + "    " + i);
                 Double tf = Double.parseDouble(docTf);
                 tempPost = tempPost.substring(tempPost.indexOf(",")+1);
                 Double finalWeight = Math.pow(tf * idf, 2);
@@ -550,7 +550,6 @@ public class Indexer {
                 } else {
                     weights.put(docNo, weights.get(docNo) + finalWeight);
                 }
-                //i = i+ docNo.length() + docTf.length() +2;
             }
         }
     }
