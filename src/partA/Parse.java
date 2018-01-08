@@ -565,13 +565,37 @@ public class Parse {
         }
         return resPos;
     }
+
+    /**
+     * check if a string contains a digit
+     * @param s
+     * @return
+     */
+    public final boolean containsDigit(String s) {
+        boolean containsDigit = false;
+
+        if (s != null && !s.isEmpty()) {
+            for (char c : s.toCharArray()) {
+                if (containsDigit = Character.isDigit(c)) {
+                    break;
+                }
+            }
+        }
+
+        return containsDigit;
+    }
     /**
      * get the potential term and add it to the parsed terms hashMap.
      * The hashMap contains String as a key and metaData as the value.
      * @param term
      */
     public void updatePotentialTerm(String term) {
-        term = term.replaceAll("[^a-zA-Z0-9. ]", "");
+        if(containsDigit(term)) {
+            term = term.replaceAll("[^a-zA-Z0-9/. ]", "");
+        }
+        else{
+            term = term.replaceAll("[^a-zA-Z0-9 ]", "");
+        }
         if(term != null && !term.equals("") && term.length() > 0) {
             term = term.toLowerCase();
             if(term.charAt(term.length()-1)=='.')
