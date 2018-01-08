@@ -679,25 +679,7 @@ public class Parse {
               String[] result = {firstWord, firstWord + " " + secondWord};
               return result;
           }
-        /*String s = str.toLowerCase();
-        String temp = "";
-        String[] result = s.split(Pattern.quote(" "));
-        s = "";
-        for (int i = 0; i < result.length; i++) {
-            result[i] = cleanTerm(result[i]);
-            s = s + result[i];
-            if (i != result.length - 1)
-                s = s + " ";
-            if (!stopWords.contains(result[i])) {
-                temp = temp + result[i];
-                if (i != result.length - 1)
-                    temp = temp + " ";
-            }
-        }
-        String[] res = temp.split(" ");
-        result = Arrays.copyOf(res, result.length + 1);
-        result[result.length - 1] = s;
-        return result;*/
+
     }
     /**
      * expressions like word-word will be split to: word, words and word word.
