@@ -201,7 +201,7 @@ public class Indexer {
                     num += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -257,7 +257,7 @@ public class Indexer {
                     a_e += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -312,7 +312,7 @@ public class Indexer {
                     f_j += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -369,7 +369,7 @@ public class Indexer {
                     k_o += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -426,7 +426,7 @@ public class Indexer {
                     p_t += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -483,7 +483,7 @@ public class Indexer {
                     u_z += fLine.length() + 1;
                     fLine = readFirst.readLine();
                 } else {
-                    sLine = sLine.substring(sLine.indexOf(":") + 1, sLine.length() - 1);
+                    sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
                     calculateWeight(fLine);
                     insertToCache(fLine);
@@ -548,7 +548,7 @@ public class Indexer {
                 } else {
                     weights.put(docNo, weights.get(docNo) + finalWeight);
                 }
-                i = i+ docNo.length() + docTf.length() +2;
+                //i = i+ docNo.length() + docTf.length() +2;
             }
         }
     }
