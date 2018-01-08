@@ -8,4 +8,8 @@ public class Ranker {
         this.indexer = indexer;
     }
 
+    public void cosSim(){
+
+    }
+
 }
