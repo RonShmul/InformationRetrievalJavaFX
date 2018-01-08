@@ -1,5 +1,6 @@
 package partA;
 
+import javafx.collections.ObservableMap;
 import javafx.stage.DirectoryChooser;
 
 import java.io.*;
@@ -75,7 +76,7 @@ public class Controller {
                 dictAndcachePath = file.getAbsolutePath();
                 ObjectOutputStream objectOutputStreamDict = new ObjectOutputStream(new FileOutputStream(dictionarySavePath));
                 ObjectOutputStream objectOutputStreamCache = new ObjectOutputStream(new FileOutputStream(cacheSavePath));
-                objectOutputStreamDict.writeObject(indexer.getDictionaryForShow());
+                objectOutputStreamDict.writeObject(indexer.getDictionary());
                 objectOutputStreamCache.writeObject(indexer.getCache());
                 objectOutputStreamCache.close();
                 objectOutputStreamDict.close();
@@ -98,7 +99,7 @@ public class Controller {
                 ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(file+ "\\" + "dictionary"));
                 ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(file+ "\\" + "cache"));
 
-                indexer.setDictionary((HashSet<Term>) objectInputStreamDict.readObject());
+                indexer.setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
                 indexer.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
                 objectInputStreamCache.close();
                 objectInputStreamDict.close();
@@ -143,15 +144,8 @@ public class Controller {
         return terms;
     }
 
-    public List<String> showCache() {//todo: fix it after done making the cache
-        List<String> cache = new ArrayList<String>(indexer.getCache().keySet());
-        cache.sort(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareTo(o2);
-            }
-        });
-        return cache;
+    public TreeMap<String, String> showCache() {
+        return new TreeMap<>(indexer.getCache());
     }
 
     public void reset() {

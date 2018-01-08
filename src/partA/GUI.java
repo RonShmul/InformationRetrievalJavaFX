@@ -1,9 +1,12 @@
 package partA;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -22,7 +25,10 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 
+import java.util.Map;
+import java.util.Observable;
 import java.util.Optional;
 
 public class GUI extends Application {
@@ -227,15 +233,19 @@ public class GUI extends Application {
 
         showDictionary.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-
-                vBox.getChildren().add(createDictionaryView()); // todo added each time mouse clicked.. need to be fixed
+                Stage stage = new Stage();
+                Scene scene = new Scene(createDictionaryView(), 400, 600);
+                stage.setScene(scene);
+                stage.show();
             }
         }));
         showCache.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                ObservableList<String> data = FXCollections.observableArrayList(controller.showCache());
-                ListView<String> cacheTerms = new ListView<>(data);
-                vBox.getChildren().add(cacheTerms); // todo added each time mouse clicked.. need to be fixed
+
+                Stage stage = new Stage();
+                Scene scene = new Scene(getCacheTable(), 400, 600);
+                stage.setScene(scene);
+                stage.show();
             }
         }));
 
@@ -325,6 +335,36 @@ public class GUI extends Application {
 
 
         return tableDict;
+    }
+    TableView<Map.Entry<String,String>> getCacheTable() {
+
+        // use fully detailed type for Map.Entry<String, String>
+        TableColumn<Map.Entry<String, String>, String> column1 = new TableColumn<>("Term");
+        column1.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Map.Entry<String, String>, String>, ObservableValue<String>>() {
+
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Map.Entry<String, String>, String> p) {
+                // this callback returns property for just one cell, you can't use a loop here
+                // for first column we use key
+                return new SimpleStringProperty(p.getValue().getKey());
+            }
+        });
+
+        TableColumn<Map.Entry<String, String>, String> column2 = new TableColumn<>("Posting");
+        column2.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Map.Entry<String, String>, String>, ObservableValue<String>>() {
+
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Map.Entry<String, String>, String> p) {
+                // for second column we use value
+                return new SimpleStringProperty(p.getValue().getValue());
+            }
+        });
+
+        ObservableList<Map.Entry<String, String>> items = FXCollections.observableArrayList(controller.showCache().entrySet());
+        TableView<Map.Entry<String,String>> table = new TableView<>(items);
+
+        table.getColumns().setAll(column1, column2);
+        return table;
     }
 
     public static void main(String[] args) {
