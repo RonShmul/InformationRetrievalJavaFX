@@ -7,29 +7,21 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class Searcher {
-    private String query;
-    private File queryFile;  //todo - dont forget in the gui change the path to file
+    //private File queryFile;  //todo - dont forget in the gui change the path to file
     private boolean isStemm;
     private Ranker ranker;
 
-    public Searcher(String query, boolean isStemm) {
-        this.query = query;
-        this.isStemm = isStemm;
+    public Searcher(Ranker ranker) {
+        this.ranker = ranker;
     }
 
-    public Searcher(File queryFile, boolean isStemm) {
-        this.queryFile = queryFile;
-        this.isStemm = isStemm;
-        ranker = new Ranker();
-    }
-
-    public String parseQuery(){
+    public String parseQuery(String query){
         Parse parse = new Parse(isStemm, true);
         String parsedQuery = parse.callParseForQuery(query);
         return parsedQuery;
     }
 
-    public List<String> parseQueriesInFile(){
+    public List<String> parseQueriesInFile(File queryFile){
         List<String> parsedQueries = new ArrayList<>();
         try {
             Parse parse = new Parse(isStemm, true);
@@ -49,42 +41,21 @@ public class Searcher {
         return parsedQueries;
     }
 
-        public List<String> searchResultForString() {
+        public List<String> searchForQuery(String query) {
         List<String> results = new ArrayList<>();
-        String parsedQuery = parseQuery();
+        String parsedQuery = parseQuery(query);
 
         //todo: now the ranker suppose to return the relevant docno
 
         return results;
     }
 
-    public HashMap<String, List<String>> SearchResultForFile() {
-        List<String> parsedQueries = parseQueriesInFile();
+    public HashMap<String, List<String>> SearchForFile(File queryFile) {
+        List<String> parsedQueries = parseQueriesInFile(queryFile);
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
 
         //todo: now the ranker suppose to return the relevant docno
 
         return results;
-    }
-
-    public List<String> FromFileToQueries() {
-        List<String> queriesInfile = new ArrayList<String>();
-        String queryFromFile = "";
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(queryFile));
-            while((queryFromFile = bufferedReader.readLine())!= null) {
-                if(queryFromFile.contains("<title>")) {
-                    String toAdd = queryFromFile.replaceAll("<title> ", "").replaceAll("\r\n","");
-                    queriesInfile.add(toAdd);
-                }
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return queriesInfile;
     }
 }
