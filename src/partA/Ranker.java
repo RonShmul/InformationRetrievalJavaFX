@@ -4,8 +4,8 @@ public class Ranker {
 
     private Indexer indexer;
 
-    public Ranker(){
-        //indexer = new Indexer();
+    public Ranker(Indexer indexer){
+        this.indexer = indexer;
     }
 
 }
