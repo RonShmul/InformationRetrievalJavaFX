@@ -30,21 +30,19 @@ public class Searcher {
     public List<String> parseQueriesInFile(){
         List<String> parsedQueries = new ArrayList<>();
         try {
+            Parse parse = new Parse(isStemm, true);
             BufferedReader readQueries = new BufferedReader(new FileReader(queryFile));
             String line = readQueries.readLine();
             while(line != null){
                 if(line.contains("<title>")){
                     String specificQ = line.substring(line.indexOf(" ")+1);
-                    parsedQueries.add(specificQ);
+                    String afterParse = parse.callParseForQuery(specificQ);
+                    parsedQueries.add(afterParse);
                 }
+                line = readQueries.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        for (String s : parsedQueries) {
-
-            
         }
         return parsedQueries;
     }
