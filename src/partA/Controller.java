@@ -18,6 +18,7 @@ public class Controller {
 
     public Controller() {
         toStemm = false;
+        indexer = new Indexer();
     }
 
     public void setCorpusPath(String corpusPath) {
@@ -71,8 +72,8 @@ public class Controller {
         File file = fc.showDialog(null);
         if(file != null) {
             try {
-                String dictionarySavePath = file.getAbsolutePath() + "\\"+"dictionary";
-                String cacheSavePath =  file.getAbsolutePath()+"\\"+"cache";
+                String dictionarySavePath = file.getAbsolutePath()+"dictionary";
+                String cacheSavePath =  file.getAbsolutePath() +"cache";
                 dictAndcachePath = file.getAbsolutePath();
                 ObjectOutputStream objectOutputStreamDict = new ObjectOutputStream(new FileOutputStream(dictionarySavePath));
                 ObjectOutputStream objectOutputStreamCache = new ObjectOutputStream(new FileOutputStream(cacheSavePath));
@@ -96,8 +97,8 @@ public class Controller {
         File file = fc.showDialog(null);
         if(file != null) {
             try {
-                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(file+ "\\" + "dictionary"));
-                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(file+ "\\" + "cache"));
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(file.getAbsolutePath() + "dictionary"));
+                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(file.getAbsolutePath() + "cache"));
 
                 indexer.setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
                 indexer.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
