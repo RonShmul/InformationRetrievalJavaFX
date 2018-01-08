@@ -10,6 +10,7 @@ public class Searcher {
     private String query;
     private File queryFile;  //todo - dont forget in the gui change the path to file
     private boolean isStemm;
+    private Ranker ranker;
 
     public Searcher(String query, boolean isStemm) {
         this.query = query;
@@ -19,6 +20,7 @@ public class Searcher {
     public Searcher(File queryFile, boolean isStemm) {
         this.queryFile = queryFile;
         this.isStemm = isStemm;
+        ranker = new Ranker();
     }
 
     public String parseQuery(){
@@ -50,7 +52,7 @@ public class Searcher {
         public List<String> searchResultForString() {
         List<String> results = new ArrayList<>();
         String parsedQuery = parseQuery();
-        Ranker ranker = new Ranker();
+
         //todo: now the ranker suppose to return the relevant docno
 
         return results;
@@ -59,7 +61,7 @@ public class Searcher {
     public HashMap<String, List<String>> SearchResultForFile() {
         List<String> parsedQueries = parseQueriesInFile();
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
-        Ranker ranker = new Ranker();
+
         //todo: now the ranker suppose to return the relevant docno
 
         return results;
@@ -75,7 +77,6 @@ public class Searcher {
                     String toAdd = queryFromFile.replaceAll("<title> ", "").replaceAll("\r\n","");
                     queriesInfile.add(toAdd);
                 }
-
             }
 
         } catch (FileNotFoundException e) {

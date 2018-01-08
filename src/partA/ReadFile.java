@@ -40,17 +40,6 @@ public class ReadFile {
         listOfDirs = headDir.listFiles();
     }
 
-
- /*   public void readCorpus() {
-        for (int i = 0; i < listOfDirs.length; i++) {
-            //get to the wanted file
-            File temp = listOfDirs[i];
-            File[] currDir = temp.listFiles();
-            File currFile = currDir[0];
-            readFile(currFile);
-        }
-    }*/
-
     public LinkedHashMap<Document, String> readFile(File currentFile) {
         LinkedHashMap<Document, String> documentsOfFile = new LinkedHashMap<Document, String>();
 
@@ -101,15 +90,13 @@ public class ReadFile {
         document.setPositionInFile(position);
         if(matchDocNo.find()) {
             document.setDocNo(matchDocNo.group());
-//            System.out.println(document.getDocNo());
         }
-        //documents.add(document);
+        //documents.add(document);  // todo - insert to file and save it for one time
 
         if(matchText.find()) {
             documentsOfFile.put(document, matchText.group());
         }
         else throw new Exception("problem with content of document"+ document.getDocNo());
-
     }
 
     //public List<Document> getDocuments() {
