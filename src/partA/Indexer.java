@@ -76,7 +76,6 @@ public class Indexer {
 
     public void loadWeights() {
         File file = new File("weights");
-        if (file != null) {
             try {
                 ObjectInputStream objectInputStreamWeight = new ObjectInputStream(new FileInputStream(file));
                 setWeights((HashMap<String, Double>) objectInputStreamWeight.readObject());
@@ -86,7 +85,6 @@ public class Indexer {
             }catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        }
     }
 
     public void initialize() {
@@ -670,9 +668,7 @@ public class Indexer {
                 cache.put(term, "");
             }
             bufferedReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }  catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -759,7 +755,7 @@ public class Indexer {
         }*/
         Indexer indexer = new Indexer();
             try {
-                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File("D:\\dictionary")));
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File("D:\\myPosting\\dictionary")));
                 HashMap<String, Term> dict = (HashMap<String, Term>) objectInputStreamDict.readObject();
                 indexer.setDictionary(dict);
                 objectInputStreamDict.close();
@@ -771,7 +767,7 @@ public class Indexer {
             }
 
         HashMap<String, Term> dictionary = indexer.getDictionary();
-        String term = "POLITICIANS";
+        String term = "POLITICIANS".toLowerCase();
         Term polit = dictionary.get(term);
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader("D:\\myPosting\\P-T"));

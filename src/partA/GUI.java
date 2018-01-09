@@ -174,17 +174,11 @@ public class GUI extends Application {
         gridPaneforButtons.add(showDictionary, 6, 0);
         gridPaneforButtons.add(showCache, 7, 0);
 
-
+        //setting the grid properties
         gridPaneforButtons.setAlignment(Pos.TOP_LEFT);
-
-        //Setting the padding
         gridPaneforButtons.setPadding(new Insets(50, 10, 10, 10));
-
-        //Setting the vertical and horizontal gaps between the columns
         gridPaneforButtons.setVgap(5);
         gridPaneforButtons.setHgap(5);
-
-        //Setting the Grid alignment
         gridPaneforButtons.setAlignment(Pos.CENTER);
 
         //set the style
@@ -349,11 +343,12 @@ public class GUI extends Application {
     GridPane searchGrid() {
         //create the grid
         GridPane mainGrid = new GridPane();
-        mainGrid.setPadding(new Insets(10, 10, 10, 10));
-        mainGrid.setVgap(20);
-        mainGrid.setHgap(20);
+        //setting the grid properties
         mainGrid.setAlignment(Pos.TOP_LEFT);
-
+        mainGrid.setPadding(new Insets(50, 10, 10, 10));
+        mainGrid.setVgap(5);
+        mainGrid.setHgap(5);
+        mainGrid.setAlignment(Pos.CENTER);
         //Label and text field  for search box
         Text searchLabel = new Text("Enter Search Query Or DOCNO:");
         TextField searchTextBox = new TextField();
@@ -391,13 +386,13 @@ public class GUI extends Application {
                 run.setDisable(false);
         });
         //add to grid and return it
-        mainGrid.add(searchLabel, 4, 1);
-        mainGrid.add(searchTextBox, 5, 1);
-        mainGrid.add(docnoCheckBox, 4, 2);
-        mainGrid.add(QueriesFileLabel, 4, 4);
-        mainGrid.add(QueriesFileTextBox, 5, 4);
-        mainGrid.add(qureiesFileBrowse, 6, 4);
-        mainGrid.add(run, 5, 6);
+        mainGrid.add(searchLabel, 0, 1);
+        mainGrid.add(searchTextBox, 1, 1);
+        mainGrid.add(docnoCheckBox, 0, 2);
+        mainGrid.add(QueriesFileLabel, 0, 4);
+        mainGrid.add(QueriesFileTextBox, 1, 4);
+        mainGrid.add(qureiesFileBrowse, 2, 4);
+        mainGrid.add(run, 1, 6);
         return mainGrid;
     }
 

@@ -72,19 +72,23 @@ public class Controller {
         File file = fc.showDialog(null);
         if(file != null) {
             try {
-                String dictionarySavePath = file.getAbsolutePath()+"dictionary";
-                String cacheSavePath =  file.getAbsolutePath() +"cache";
+                String path = file.getAbsolutePath();
+                int index = path.lastIndexOf('\\');
+                if(index >= path.length()-1) {
+                    path = path.substring(0, index);
+                }
+                String dictionarySavePath = path + "\\" +"dictionary";
+                String cacheSavePath =  path +"\\" +"cache";
                 dictAndcachePath = file.getAbsolutePath();
-                ObjectOutputStream objectOutputStreamDict = new ObjectOutputStream(new FileOutputStream(dictionarySavePath));
-                ObjectOutputStream objectOutputStreamCache = new ObjectOutputStream(new FileOutputStream(cacheSavePath));
+                ObjectOutputStream objectOutputStreamDict = new ObjectOutputStream(new FileOutputStream(new File(dictionarySavePath)));
+                ObjectOutputStream objectOutputStreamCache = new ObjectOutputStream(new FileOutputStream(new File(cacheSavePath)));
                 objectOutputStreamDict.writeObject(indexer.getDictionary());
                 objectOutputStreamCache.writeObject(indexer.getCache());
-                objectOutputStreamCache.close();
                 objectOutputStreamDict.close();
+                objectOutputStreamCache.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //todo: write the dictionary and cache to 2 different files
         }
 //        setChanged();
 //        notifyObservers();//todo check if i need it
@@ -97,8 +101,13 @@ public class Controller {
         File file = fc.showDialog(null);
         if(file != null) {
             try {
-                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(file.getAbsolutePath() + "dictionary"));
-                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(file.getAbsolutePath() + "cache"));
+                String path = file.getAbsolutePath();
+                int index = path.lastIndexOf('\\');
+                if(index >= path.length()-1) {
+                    path = path.substring(0, index);
+                }
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "dictionary")));
+                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "cache")));
 
                 indexer.setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
                 indexer.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
