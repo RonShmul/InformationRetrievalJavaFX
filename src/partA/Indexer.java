@@ -28,6 +28,10 @@ public class Indexer {
 
     }
 
+    public static int getN() {
+        return N;
+    }
+
     public HashMap<String, Term> getDictionary() {
         return Dictionary;
     }
@@ -214,7 +218,7 @@ public class Indexer {
         long k_o= 0;
         long p_t= 0;
         long u_z= 0;
-        try {   //6 posting files
+        try {  //6 posting files
             BufferedReader readFirst = new BufferedReader(new FileReader(new File(filesPath + "\\" + "0")));
             BufferedReader readSecond = new BufferedReader(new FileReader(filesPath + "\\" + "1"));
             BufferedWriter writeToFile = new BufferedWriter(new FileWriter(new File(filesPath + "\\" + "finalNumbers")));
