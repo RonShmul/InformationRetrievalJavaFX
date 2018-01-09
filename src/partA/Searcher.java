@@ -42,20 +42,20 @@ public class Searcher {
     }
 
         public List<String> searchForQuery(String query) {
-        List<String> results = new ArrayList<>();
         String parsedQuery = parseQuery(query);
-
-        //todo: now the ranker suppose to return the relevant docno
-
+            System.out.println(parsedQuery);  //todo - check the parsed q
+        List<String> results = ranker.cosSim(parsedQuery);
         return results;
     }
 
     public HashMap<String, List<String>> SearchForFile(File queryFile) {
         List<String> parsedQueries = parseQueriesInFile(queryFile);
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
-
-        //todo: now the ranker suppose to return the relevant docno
-
+        for (int i = 0; i <parsedQueries.size() ; i++) {
+            String specificQuery = parsedQueries.get(i);
+            List<String> result = ranker.cosSim(specificQuery);
+            results.put(specificQuery, result);
+        }
         return results;
     }
 }

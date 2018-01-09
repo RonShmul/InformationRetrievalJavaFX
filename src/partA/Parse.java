@@ -36,6 +36,7 @@ public class Parse {
         specials.add('.'); specials.add(','); specials.add(']'); specials.add('['); specials.add('(');
         specials.add(')'); specials.add('{'); specials.add('}'); specials.add(':'); specials.add(';');
         specials.add('"');
+        parsedQuery = "";
         setMonthMap();
         setStopWords();
     }
@@ -217,7 +218,7 @@ public class Parse {
     }
 
     public void forParsedQuery(String term){
-        if(parsedQuery=="")
+        if(parsedQuery.equals(""))
             parsedQuery = term;
         else{
             String temp = " " + term;
@@ -235,7 +236,7 @@ public class Parse {
     }
     public void parse(String content) {
         //content = content.replaceAll("-+", " "); content = content.replaceAll("[:;]", "."); content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
-            int pos =0 ,index = 0;  //updating the pointers
+            int pos =0 ,index = 1;  //updating the pointers
             pos = getPosToAfterWhiteSpaces(pos, index, content);
             index = content.indexOf(" ", pos);
             //the main while running on a document

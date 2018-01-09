@@ -194,7 +194,6 @@ public class Indexer {
                 realCounter = realCounter/2;
                 count =0;
             }
-
             //merging the two files that left and separate to final posting files
             finalPosting();
 
@@ -226,7 +225,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    //calculateWeight(sLine);
+                    calculateWeight(sLine);
                     //insertToCache(sLine);
                     writeToFile.write(sLine + "\n");
                     Dictionary.get(sTerm).setPointerToPostings(num);
@@ -234,7 +233,7 @@ public class Indexer {
                     num += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) < 0) {
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                     //insertToCache(fLine);
                     writeToFile.write(fLine+ "\n");
                     Dictionary.get(fTerm).setPointerToPostings(num);
@@ -244,7 +243,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                     //insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToFile.write(fLine);
@@ -256,7 +255,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && !(Character.isLetter(sLine.charAt(0)))){
-                //calculateWeight(sLine);
+                calculateWeight(sLine);
                 //insertToCache(sLine);
                 writeToFile.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -266,7 +265,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && !(Character.isLetter(fLine.charAt(0)))){
-                //calculateWeight(fLine);
+                calculateWeight(fLine);
                 //insertToCache(fLine);
                 writeToFile.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -282,7 +281,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    //calculateWeight(sLine);
+                    calculateWeight(sLine);
                     //insertToCache(sLine);
                     writeToA.write(sLine + "\n");
                     Dictionary.get(sTerm).setPointerToPostings(a_e);
@@ -290,7 +289,7 @@ public class Indexer {
                     a_e += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     writeToA.write(fLine + "\n");
                     Dictionary.get(fTerm).setPointerToPostings(a_e);
@@ -300,7 +299,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToA.write(fLine);
@@ -312,7 +311,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && ae.contains((sLine.substring(0,1)))){
-                //calculateWeight(sLine);
+                calculateWeight(sLine);
                 //insertToCache(sLine);
                 writeToA.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -322,7 +321,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && ae.contains((fLine.substring(0,1)))){
-                //calculateWeight(fLine);
+                calculateWeight(fLine);
                 //insertToCache(fLine);
                 writeToA.write(fLine+"\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -337,7 +336,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    //calculateWeight(sLine);
+                    calculateWeight(sLine);
                    // insertToCache(sLine);
                     writeToF.write(sLine + "\n");
                     Dictionary.get(sTerm).setPointerToPostings(f_j);
@@ -345,7 +344,7 @@ public class Indexer {
                     f_j += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     writeToF.write(fLine + "\n");
                     Dictionary.get(fTerm).setPointerToPostings(f_j);
@@ -355,7 +354,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToF.write(fLine);
@@ -367,7 +366,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && fj.contains((sLine.substring(0,1)))){
-                //calculateWeight(sLine);
+                calculateWeight(sLine);
                 //insertToCache(sLine);
                 writeToF.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -377,7 +376,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && fj.contains((fLine.substring(0,1)))){
-                //calculateWeight(fLine);
+                calculateWeight(fLine);
                 //insertToCache(fLine);
                 writeToF.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -394,7 +393,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    //calculateWeight(sLine);
+                    calculateWeight(sLine);
                    // insertToCache(sLine);
                     writeToK.write(sLine+ "\n");
                     Dictionary.get(sTerm).setPointerToPostings(k_o);
@@ -402,7 +401,7 @@ public class Indexer {
                     k_o += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm)<0) {
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     writeToK.write(fLine+ "\n");
                     Dictionary.get(fTerm).setPointerToPostings(k_o);
@@ -412,7 +411,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToK.write(fLine);
@@ -424,7 +423,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && ko.contains((sLine.substring(0,1)))){
-               // calculateWeight(sLine);
+               calculateWeight(sLine);
                // insertToCache(sLine);
                 writeToK.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -434,7 +433,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && ko.contains((fLine.substring(0,1)))){
-                //calculateWeight(fLine);
+                calculateWeight(fLine);
                // insertToCache(fLine);
                 writeToK.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -451,7 +450,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                    //calculateWeight(sLine);
+                    calculateWeight(sLine);
                   //  insertToCache(sLine);
                     writeToP.write(sLine+ "\n");
                     Dictionary.get(sTerm).setPointerToPostings(p_t);
@@ -459,7 +458,7 @@ public class Indexer {
                     p_t += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                   // calculateWeight(fLine);
+                   calculateWeight(fLine);
                   //  insertToCache(fLine);
                     writeToP.write(fLine+ "\n");
                     Dictionary.get(fTerm).setPointerToPostings(p_t);
@@ -469,7 +468,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToP.write(fLine);
@@ -481,7 +480,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && pt.contains((sLine.substring(0,1)))){
-                //calculateWeight(sLine);
+                calculateWeight(sLine);
                // insertToCache(sLine);
                 writeToP.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -491,7 +490,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && pt.contains((fLine.substring(0,1)))){
-                //calculateWeight(fLine);
+                calculateWeight(fLine);
                 //insertToCache(fLine);
                 writeToP.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -508,7 +507,7 @@ public class Indexer {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
                 if (fTerm.compareTo(sTerm) >0) {
-                   // calculateWeight(sLine);
+                   calculateWeight(sLine);
                    // insertToCache(sLine);
                     writeToU.write(sLine+ "\n");
                     Dictionary.get(sTerm).setPointerToPostings(u_z);
@@ -516,7 +515,7 @@ public class Indexer {
                     u_z += sLine.length() + 1;
                     sLine = readSecond.readLine();
                 } else if (fTerm.compareTo(sTerm) <0) {
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     writeToU.write(fLine+ "\n");
                     Dictionary.get(fTerm).setPointerToPostings(u_z);
@@ -526,7 +525,7 @@ public class Indexer {
                 } else {
                     sLine = sLine.substring(sLine.indexOf(":") + 1);
                     fLine = fLine.concat(sLine);
-                    //calculateWeight(fLine);
+                    calculateWeight(fLine);
                    // insertToCache(fLine);
                     fLine = fLine.concat("\n");
                     writeToU.write(fLine);
@@ -538,7 +537,7 @@ public class Indexer {
                 }
             }
             while(sLine!=null && uz.contains((sLine.substring(0,1)))){
-                //calculateWeight(sLine);
+                calculateWeight(sLine);
                // insertToCache(sLine);
                 writeToU.write(sLine + "\n");
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
@@ -548,7 +547,7 @@ public class Indexer {
                 sLine = readSecond.readLine();
             }
             while(fLine!=null && uz.contains((fLine.substring(0,1)))){
-               // calculateWeight(fLine);
+                calculateWeight(fLine);
                // insertToCache(fLine);
                 writeToU.write(fLine + "\n");
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
@@ -730,30 +729,18 @@ public class Indexer {
 
 
     public static void main(String[] args) {
-        /*HashMap<String, Double> kaki = new HashMap<>();
-        kaki.put("d1", 0.1);
-        kaki.put("d2", 0.2);
-        kaki.put("d3", 0.3);
-        kaki.put("d4", 0.4);
-        kaki.put("d5", 0.5);
-        kaki.put("d6", 0.6);
-        List<Map.Entry<String, Double>> pipi = new ArrayList<>(kaki.entrySet());
-        pipi.sort(new Comparator<Map.Entry<String, Double>>() {
-            @Override
-            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
-                if(o1.getValue() < o2.getValue()) {
-                    return 1;
-                }
-                else if(o1.getValue() > o2.getValue()) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
-        for (Map.Entry<String, Double> doc : pipi) {
-            System.out.println(doc.getKey());
-        }*/
-        Indexer indexer = new Indexer();
+        Indexer in = new Indexer("d:\\documents\\users\\ronshmul\\Documents\\halfCorpus" , "d:\\documents\\users\\ronshmul\\Documents\\posting" , false);
+        Ranker rank = new Ranker(in);
+        Searcher searcher = new Searcher(rank);
+        in.initialize();
+        List<String> s = searcher.searchForQuery("Factory, ugly adoption ");
+        for (int i = 0; i < s.size(); i++) {
+            System.out.println(s.get(i));
+        }
+
+
+
+        /*Indexer indexer = new Indexer();
             try {
                 ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File("D:\\myPosting\\dictionary")));
                 HashMap<String, Term> dict = (HashMap<String, Term>) objectInputStreamDict.readObject();
@@ -777,7 +764,7 @@ public class Indexer {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
     public void loadDictionary(String path) {
 
