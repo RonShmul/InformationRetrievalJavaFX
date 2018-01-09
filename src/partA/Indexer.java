@@ -28,6 +28,14 @@ public class Indexer {
 
     }
 
+    public String getCorpusPath() {
+        return corpusPath;
+    }
+
+    public void setCorpusPath(String corpusPath) {
+        this.corpusPath = corpusPath;
+    }
+
     public static int getN() {
         return N;
     }
@@ -89,12 +97,12 @@ public class Indexer {
 
     public void initialize() {
         //createCache();
+        //create new readFile
+        ReadFile corpus = new ReadFile(corpusPath);
         //get to the main directory
         File headDir = new File(corpusPath);
         //get all the directories from the main directory:
         File[] listOfDirs = headDir.listFiles();
-        //create new readFile
-        ReadFile corpus = new ReadFile(corpusPath);
 
         //iterate on all the files in the corpus
         for (int i = 0; i < listOfDirs.length; i++) {
@@ -766,7 +774,5 @@ public class Indexer {
             e.printStackTrace();
         }*/
     }
-    public void loadDictionary(String path) {
 
-    }
 }
