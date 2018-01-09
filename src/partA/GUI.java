@@ -1,4 +1,5 @@
 package partA;
+
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -35,22 +37,178 @@ public class GUI extends Application {
     private String dataSetPath;
     private String locationPath;
     private Controller controller;
+    private String queriesFilePath;
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        //list View for educational qualification
-//
-
-
+    public void start(Stage primaryStage) throws Exception {
         controller = new Controller();
         //Creating containers
-        GridPane mainGridPane = new GridPane();
-        GridPane gridPaneforButtons = new GridPane();
         VBox vBox = new VBox();
         HBox hBox = new HBox();
 
+        //the start button
+        Button startBTN = new Button("Start");
+
+        //change buttons settings
+        startBTN.setDefaultButton(true);
+        startBTN.setMinWidth(100);
+        startBTN.setPadding(new Insets(5));
+        startBTN.setDisable(true);
+        //add the side grid to the hBox
+        hBox.getChildren().add(createSideGridPane(startBTN));
+
+        //add the buttons grid to vBox and the vBox to hBox
+        vBox.getChildren().add(createButtonsGridPane(startBTN));
+        vBox.getChildren().add(searchGrid());
+        vBox.setPrefWidth(1000);
+        vBox.setPrefHeight(1000);
+        VBox.setVgrow(vBox, Priority.ALWAYS);
+        HBox.setHgrow(vBox, Priority.ALWAYS);
+        hBox.getChildren().add(vBox);
+
+        //Styling start button
+        startBTN.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
+
+        //Creating a scene object
+        FXMLLoader fxl = new FXMLLoader();
+
+        //set the stage and scene
+        primaryStage.setTitle("Information Retrieval - Part A");
+        Scene scene = new Scene(hBox);
+        primaryStage.setScene(scene);
+
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+
+        //set the stage properties
+        primaryStage.setResizable(true);
+        primaryStage.setX(primaryScreenBounds.getMinX());
+        primaryStage.setY(primaryScreenBounds.getMinY());
+        primaryStage.setWidth(primaryScreenBounds.getWidth());
+        primaryStage.setHeight(primaryScreenBounds.getHeight());
+
+        primaryStage.setMaximized(true);
+        primaryStage.show();
+    }
+
+    GridPane createButtonsGridPane(Button startBTN) {
+        GridPane gridPaneforButtons = new GridPane();
+        //create buttons
+        Button showDictionary = new Button("Show Dictionary");
+        Button showCache = new Button("Show Cache");
+        Button load = new Button("Load");
+        Button save = new Button("Save");
+        Button reset = new Button("Reset");
+
+        //set properties to buttons
+        load.setMinWidth(100);
+        save.setMinWidth(100);
+        reset.setMinWidth(100);
+        load.setPadding(new Insets(5));
+        save.setPadding(new Insets(5));
+        reset.setPadding(new Insets(5));
+
+        //events to buttons
+        startBTN.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+
+                if (!showCache.isVisible() || !showDictionary.isVisible() || !save.isVisible()) {
+                    showCache.setVisible(true);
+                    showDictionary.setVisible(true);
+                    save.setVisible(true);
+                }
+                if (reset.isDisable()) {
+                    reset.setDisable(false);
+                }
+                controller.startIndexing(dataSetPath, locationPath);
+            }
+        }));
+        save.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+
+                controller.saveDictionaryAndCache();
+
+            }
+        }));
+        load.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+
+                controller.loadDictionaryAndCache();
+                showCache.setVisible(true);
+                showDictionary.setVisible(true);
+
+            }
+        }));
+        reset.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                controller.reset();
+            }
+        }));
+        showDictionary.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                Stage stage = new Stage();
+                Scene scene = new Scene(createDictionaryView(), 400, 600);
+                stage.setScene(scene);
+                stage.show();
+            }
+        }));
+        showCache.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                Stage stage = new Stage();
+                Scene scene = new Scene(getCacheTable(), 400, 600);
+                stage.setScene(scene);
+                stage.show();
+            }
+        }));
+
+        //default not shown
+        save.setVisible(false);
+        reset.setDisable(true);
+        showCache.setVisible(false);
+        showDictionary.setVisible(false);
+
+        //add buttons to grid
+        gridPaneforButtons.add(startBTN, 0, 0);
+        gridPaneforButtons.add(reset, 1, 0);
+        gridPaneforButtons.add(load, 2, 0);
+        gridPaneforButtons.add(save, 3, 0);
+        gridPaneforButtons.add(showDictionary, 6, 0);
+        gridPaneforButtons.add(showCache, 7, 0);
 
 
+        gridPaneforButtons.setAlignment(Pos.TOP_LEFT);
+
+        //Setting the padding
+        gridPaneforButtons.setPadding(new Insets(50, 10, 10, 10));
+
+        //Setting the vertical and horizontal gaps between the columns
+        gridPaneforButtons.setVgap(5);
+        gridPaneforButtons.setHgap(5);
+
+        //Setting the Grid alignment
+        gridPaneforButtons.setAlignment(Pos.CENTER);
+
+        //set the style
+        load.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
+        save.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
+        reset.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
+        showDictionary.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
+        showCache.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
+
+        return gridPaneforButtons;
+    }
+
+    GridPane createSideGridPane(Button startBTN) {
+        GridPane mainGridPane = new GridPane();
+
+        //Setting the grid properties
+        mainGridPane.setPadding(new Insets(10, 10, 10, 10));
+        mainGridPane.setVgap(20);
+        mainGridPane.setHgap(20);
+        mainGridPane.setAlignment(Pos.TOP_LEFT);
+
+        //create the browse buttons
+        Button dataSetBrowse = new Button("Browse");
+        Button filesLocationBrowse = new Button("Browse");
         //Label dataset
         Text datasetLabel = new Text("Choose DataSet");
 
@@ -67,99 +225,22 @@ public class GUI extends Application {
         CheckBox stemmingCheckBox = new CheckBox("Enable Stemming");
         stemmingCheckBox.setIndeterminate(false);
 
-        //create buttons
-        Button dataSetBrowse = new Button("Browse");
-        Button filesLocationBrowse = new Button("Browse");
-        Button startBTN = new Button("Start");
-        Button showDictionary = new Button("Show Dictionary"); // todo event hander
-        Button showCache = new Button("Show Cache"); // todo event handler
-        Button load = new Button("Load"); // todo event handler
-        Button save = new Button("Save"); // todo event handler
-        Button reset = new Button("Reset"); // todo event handler
-
-
-        //change buttons settings
-        startBTN.setDefaultButton(true);
-
-        startBTN.setMinWidth(100);
-        load.setMinWidth(100);
-        save.setMinWidth(100);
-        reset.setMinWidth(100);
-
-        startBTN.setPadding(new Insets(5));
-        load.setPadding(new Insets(5));
-        save.setPadding(new Insets(5));
-        reset.setPadding(new Insets(5));
-        startBTN.setDisable(true);
-        save.setVisible(false);
-        reset.setDisable(true);
-
-        //default not shown
-        showCache.setVisible(false);
-        showDictionary.setVisible(false);
-
-        //add buttons to grid
-        gridPaneforButtons.add(startBTN, 0, 0);
-        gridPaneforButtons.add(reset, 1, 0);
-        gridPaneforButtons.add(load, 2, 0);
-        gridPaneforButtons.add(save, 3, 0);
-        gridPaneforButtons.add(showDictionary, 6, 0);
-        gridPaneforButtons.add(showCache, 7, 0);
-
-        //Setting the padding
-        mainGridPane.setPadding(new Insets(10, 10, 10, 10));
-
-        //Setting the vertical and horizontal gaps between the columns
-        mainGridPane.setVgap(20);
-        mainGridPane.setHgap(20);
-
-        //Setting the Grid alignment
-        mainGridPane.setAlignment(Pos.TOP_LEFT);
-        gridPaneforButtons.setAlignment(Pos.TOP_LEFT);
-
         //Arranging all the nodes in the grid
         mainGridPane.add(datasetLabel, 0, 1);
         mainGridPane.add(dataSetTextField, 1, 1);
         mainGridPane.add(dataSetBrowse, 2, 1);
-
         mainGridPane.add(locationFileLabel, 0, 2);
         mainGridPane.add(locationTextField, 1, 2);
         mainGridPane.add(filesLocationBrowse, 2, 2);
-
         mainGridPane.add(stemmingCheckBox, 0, 3);
 
-
-        hBox.getChildren().add(mainGridPane);
-
-        //create grid with 2 button
-
-        //Setting the padding
-        gridPaneforButtons.setPadding(new Insets(50, 10, 10, 10));
-
-        //Setting the vertical and horizontal gaps between the columns
-        gridPaneforButtons.setVgap(5);
-        gridPaneforButtons.setHgap(5);
-
-        //Setting the Grid alignment
-        gridPaneforButtons.setAlignment(Pos.CENTER);
-
-
-        //add the grid to vBox
-        vBox.getChildren().add(gridPaneforButtons);
-        hBox.getChildren().add(vBox);
-        HBox.setHgrow(vBox, Priority.ALWAYS);
-        VBox.setVgrow(vBox, Priority.ALWAYS);
-        vBox.setPrefWidth(1000);
-        vBox.setPrefHeight(1000);
-
-        //events to buttons
-
+        //buttons events
         dataSetBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
 
                 dataSetPath = controller.chooseFolder();
                 dataSetTextField.setText(dataSetPath);
-                if(locationPath != null)
+                if (locationPath != null)
                     startBTN.setDisable(false);
 
             }
@@ -170,85 +251,23 @@ public class GUI extends Application {
 
                 locationPath = controller.chooseFolder(); // todo maybe another function
                 locationTextField.setText(locationPath);
-                if(dataSetPath != null)
+                if (dataSetPath != null)
                     startBTN.setDisable(false);
-            }
-        }));
-
-        startBTN.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                if(!showCache.isVisible() || !showDictionary.isVisible()|| !save.isVisible()){
-                    showCache.setVisible(true);
-                    showDictionary.setVisible(true);
-                    save.setVisible(true);
-                }
-                if(reset.isDisable()) {
-                    reset.setDisable(false);
-                }
-
-
-                    controller.startIndexing(dataSetPath, locationPath);
-
-            }
-        }));
-        save.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                controller.saveDictionaryAndCache();
-
-            }
-        }));
-
-        load.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                controller.loadDictionaryAndCache();
-                showCache.setVisible(true);
-                showDictionary.setVisible(true);
-
-            }
-        }));
-
-        reset.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                controller.reset();
-
             }
         }));
         dataSetTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             dataSetPath = newValue;
 
-            if(locationPath != null)
+            if (locationPath != null)
                 startBTN.setDisable(false);
         });
 
         locationTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             locationPath = newValue;
 
-            if(dataSetPath != null)
+            if (dataSetPath != null)
                 startBTN.setDisable(false);
         });
-
-        showDictionary.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                Stage stage = new Stage();
-                Scene scene = new Scene(createDictionaryView(), 400, 600);
-                stage.setScene(scene);
-                stage.show();
-            }
-        }));
-        showCache.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                Stage stage = new Stage();
-                Scene scene = new Scene(getCacheTable(), 400, 600);
-                stage.setScene(scene);
-                stage.show();
-            }
-        }));
-
         stemmingCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -256,56 +275,16 @@ public class GUI extends Application {
             }
         });
 
-        //Styling nodes
-        startBTN.setStyle(
-                "-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
-
-        dataSetBrowse.setStyle(
-                "-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
-        filesLocationBrowse.setStyle(
-                "-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
-        load.setStyle(
-                "-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
-
-        save.setStyle(
-                "-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
-
-        reset.setStyle(
-                "-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
-
+        //styling the buttons
+        dataSetBrowse.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
+        filesLocationBrowse.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
         datasetLabel.setStyle("-fx-font: normal 15px 'serif' ");
         locationFileLabel.setStyle("-fx-font: normal 15px 'serif' ");
         dataSetTextField.setStyle("-fx-font: normal 15px 'serif' ");
         locationTextField.setStyle("-fx-font: normal 15px 'serif' ");
         mainGridPane.setStyle("-fx-background-color: whitesmoke;");
-        showDictionary.setStyle(
-                "-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
 
-        showCache.setStyle(
-                "-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
-
-
-        //Creating a scene object
-        FXMLLoader fxl = new FXMLLoader();
-
-        //set the stage and scene
-        primaryStage.setTitle("Information Retrieval - Part A");
-        Scene scene = new Scene(hBox);
-        primaryStage.setScene(scene);
-        //SetStageCloseEvent(primaryStage);
-        //Controller controller = fxl.getController();
-        //controller.setResizeEvent(scene);
-
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-
-        primaryStage.setResizable(true);
-        primaryStage.setX(primaryScreenBounds.getMinX());
-        primaryStage.setY(primaryScreenBounds.getMinY());
-        primaryStage.setWidth(primaryScreenBounds.getWidth());
-        primaryStage.setHeight(primaryScreenBounds.getHeight());
-
-        primaryStage.setMaximized(true);
-        primaryStage.show();
+        return mainGridPane;
     }
 
     public TableView<Term> createDictionaryView() {
@@ -336,7 +315,8 @@ public class GUI extends Application {
 
         return tableDict;
     }
-    TableView<Map.Entry<String,String>> getCacheTable() {
+
+    TableView<Map.Entry<String, String>> getCacheTable() {
 
         // use fully detailed type for Map.Entry<String, String>
         TableColumn<Map.Entry<String, String>, String> column1 = new TableColumn<>("Term");
@@ -361,10 +341,64 @@ public class GUI extends Application {
         });
 
         ObservableList<Map.Entry<String, String>> items = FXCollections.observableArrayList(controller.showCache().entrySet());
-        TableView<Map.Entry<String,String>> table = new TableView<>(items);
+        TableView<Map.Entry<String, String>> table = new TableView<>(items);
 
         table.getColumns().setAll(column1, column2);
         return table;
+    }
+    GridPane searchGrid() {
+        //create the grid
+        GridPane mainGrid = new GridPane();
+        mainGrid.setPadding(new Insets(10, 10, 10, 10));
+        mainGrid.setVgap(20);
+        mainGrid.setHgap(20);
+        mainGrid.setAlignment(Pos.TOP_LEFT);
+
+        //Label and text field  for search box
+        Text searchLabel = new Text("Enter Search Query Or DOCNO:");
+        TextField searchTextBox = new TextField();
+        searchLabel.setStyle("-fx-font: normal 15px 'serif' ");
+
+        //check box for Docno
+        CheckBox docnoCheckBox = new CheckBox("Check It For DOCNO");
+        docnoCheckBox.setIndeterminate(false);
+
+        //Label, text field and Browse button for Queries file
+        Text QueriesFileLabel = new Text("Choose Queries File:");
+        TextField QueriesFileTextBox = new TextField();
+        Button qureiesFileBrowse = new Button("Browse");
+        qureiesFileBrowse.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
+        QueriesFileLabel.setStyle("-fx-font: normal 15px 'serif' ");
+
+        //create the run button
+        Button run = new Button("Run");
+        run.setDisable(true);
+        run.setMinWidth(100);
+        run.setPadding(new Insets(5));
+        run.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
+        //events
+        qureiesFileBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                queriesFilePath = controller.chooseFolder();
+                QueriesFileTextBox.setText(queriesFilePath);
+                if (queriesFilePath != null)
+                    run.setDisable(false);
+            }
+        }));
+        QueriesFileTextBox.textProperty().addListener((observable, oldValue, newValue) -> {
+            queriesFilePath = newValue;
+            if (queriesFilePath != null)
+                run.setDisable(false);
+        });
+        //add to grid and return it
+        mainGrid.add(searchLabel, 4, 1);
+        mainGrid.add(searchTextBox, 5, 1);
+        mainGrid.add(docnoCheckBox, 4, 2);
+        mainGrid.add(QueriesFileLabel, 4, 4);
+        mainGrid.add(QueriesFileTextBox, 5, 4);
+        mainGrid.add(qureiesFileBrowse, 6, 4);
+        mainGrid.add(run, 5, 6);
+        return mainGrid;
     }
 
     public static void main(String[] args) {
