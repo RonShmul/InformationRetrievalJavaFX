@@ -58,7 +58,7 @@ public class Indexer {
     }
 
     public void saveWeights() {
-        File file = new File("D:\\weights");
+        File file = new File("weights");
         if (file != null) {
             try {
                 ObjectOutputStream objectOutputStreamWeight = new ObjectOutputStream(new FileOutputStream(file));
@@ -71,7 +71,7 @@ public class Indexer {
     }
 
     public void loadWeights() {
-        File file = new File("D:\\weights");
+        File file = new File("weights");
         if (file != null) {
             try {
                 ObjectInputStream objectInputStreamWeight = new ObjectInputStream(new FileInputStream(file));
@@ -730,9 +730,46 @@ public class Indexer {
 
 
     public static void main(String[] args) {
-int a1= 2;
-int a2 = 10;
-        System.out.println(((double)a1)/a2);
+        /*HashMap<String, Double> kaki = new HashMap<>();
+        kaki.put("d1", 0.1);
+        kaki.put("d2", 0.2);
+        kaki.put("d3", 0.3);
+        kaki.put("d4", 0.4);
+        kaki.put("d5", 0.5);
+        kaki.put("d6", 0.6);
+        List<Map.Entry<String, Double>> pipi = new ArrayList<>(kaki.entrySet());
+        pipi.sort(new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                if(o1.getValue() < o2.getValue()) {
+                    return 1;
+                }
+                else if(o1.getValue() > o2.getValue()) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        for (Map.Entry<String, Double> doc : pipi) {
+            System.out.println(doc.getKey());
+        }*/
+        Indexer indexer = new Indexer();
+        indexer.loadDictionary("D:\\myPosting\\dictionary");
+        HashMap<String, Term> dictionary = indexer.getDictionary();
     }
+    public void loadDictionary(String path) {
+        File file = new File(path);
+        if (file != null) {
+            try {
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(file));
+                setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
+                objectInputStreamDict.close();
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
