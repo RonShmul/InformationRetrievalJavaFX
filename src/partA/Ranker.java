@@ -42,16 +42,19 @@ public class Ranker {
     }
 
     public void calcCosSim(String termInPosting , int df , int length) {
-        String[] parts = termInPosting.split(": | ,"); //todo change
+        String term = termInPosting.substring(0,termInPosting.indexOf(":"));
+        termInPosting = termInPosting.substring(termInPosting.indexOf(":")+1);
+        String[] parts = termInPosting.split(",");
         double idf = Math.log(indexer.getN() / df);
-        for (int i = 1; i < parts.length; i=i+2) {
-            Double constDivide = Math.sqrt((weights.get(parts[i]))*length);
+        for (int i = 0; i < parts.length; i++) {
+            String docNo = parts[i].substring(0,parts[i].indexOf(":"));
+            String tf = parts[i].substring(parts[i].indexOf(":")+1);
+            Double constDivide = Math.sqrt(weights.get(docNo)*length);
+            Double weightIJ = ((Double.parseDouble(tf))*idf)/constDivide;
             if (calculateW.get(parts[i]) == null) {
-                double weight = ((Double.parseDouble(parts[i + 1]))*idf)/constDivide;
-                calculateW.put(parts[i], weight);
+                calculateW.put(docNo, weightIJ);
             } else {
-                double weight = ((Double.parseDouble(parts[i + 1]))*idf)/constDivide;
-                calculateW.put(parts[i], calculateW.get(parts[i]) + weight);
+                calculateW.put(docNo, calculateW.get(docNo) + weightIJ);
             }
         }
     }

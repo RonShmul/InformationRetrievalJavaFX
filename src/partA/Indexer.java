@@ -741,11 +741,10 @@ public class Indexer {
         Ranker rank = new Ranker(in);
         Searcher searcher = new Searcher(rank);
         in.initialize();
-        List<String> s = searcher.searchForQuery("Factory, ugly adoption ");
+        List<String> s = searcher.searchForQuery("Factory, ugly adoption");
         for (int i = 0; i < s.size(); i++) {
             System.out.println(s.get(i));
         }
-
 
 
         /*Indexer indexer = new Indexer();
