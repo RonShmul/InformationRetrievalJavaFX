@@ -8,13 +8,15 @@ public class Ranker {
     private Indexer indexer;
     private HashMap<String, Double> calculateW;
     private HashMap<String, Double> weights;
+    private double b = 0.75;
+    private double k = 1.4;
 
     public Ranker(Indexer indexer) {
         this.indexer = indexer;
         calculateW = new HashMap<>();
     }
 
-    public List<String> cosSim(String query) {  //todo - maybe pass the load weights to here
+    public List<String> ranking(String query) {  //todo - maybe pass the load weights to here
         String[] parts = query.split(" ");
         int len = parts.length;
         indexer.loadWeights();
@@ -22,8 +24,7 @@ public class Ranker {
         for (int i = 0; i < len; i++) {
             Term t = indexer.getDictionary().get(parts[i]);
             int df = t.getDf();
-            String path = t.getPostingFilePath();  //todo - indexing for saving the path
-            //String path =
+            String path = t.getPostingFilePath();
             long position = t.getPointerToPostings();
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
@@ -37,7 +38,7 @@ public class Ranker {
                 e.printStackTrace();
             }
         }
-        List<String> relevantDocs = sortByRank();
+        List<String> relevantDocs = sortByRank();  //todo - change it by BM
         return relevantDocs;
     }
 
@@ -57,6 +58,12 @@ public class Ranker {
                 calculateW.put(docNo, calculateW.get(docNo) + weightIJ);
             }
         }
+    }
+
+    public void BM(String termInPosting , int df , int length){
+        double IDF = Math.log((indexer.getN()-df+0.5)/(df+0.5));
+        //double DF =
+
     }
 
     public List<String> sortByRank(){

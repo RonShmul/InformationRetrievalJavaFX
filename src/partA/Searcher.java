@@ -52,7 +52,7 @@ public class Searcher {
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
         for (int i = 0; i < parsedQueries.size(); i++) {
             String specificQuery = parsedQueries.get(i);
-            List<String> result = ranker.cosSim(specificQuery);
+            List<String> result = ranker.ranking(specificQuery);
             results.put(specificQuery, result);
         }
         return results;
