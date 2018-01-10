@@ -765,7 +765,7 @@ public class Indexer {
         Searcher searcher = new Searcher(rank);
         List<String> s = searcher.searchForQuery("Falkland petroleum exploration");
         int queryId = 351;
-        File results = new File("D:\\results");
+        File results = new File("D:\\results.txt");
         try {
             BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
             for (int i = 0; i < s.size(); i++) {
