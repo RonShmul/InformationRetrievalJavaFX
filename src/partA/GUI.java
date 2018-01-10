@@ -1,13 +1,11 @@
 package partA;
 
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -22,26 +20,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import java.util.Map;
-import java.util.Observable;
-import java.util.Optional;
 
 public class GUI extends Application {
     private String dataSetPath;
     private String locationPath;
     private Controller controller;
     private String queriesFilePath;
+    private String searchtext;
+    private boolean isDocno;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         controller = new Controller();
+        isDocno = false;
         //Creating containers
         VBox vBox = new VBox();
         HBox hBox = new HBox();
@@ -88,6 +84,13 @@ public class GUI extends Application {
 
         primaryStage.setMaximized(true);
         primaryStage.show();
+    }
+    public void setIsDocno(boolean isDocno) {
+        this.isDocno = isDocno;
+    }
+
+    public boolean isDocno() {
+        return isDocno;
     }
 
     GridPane createButtonsGridPane(Button startBTN) {
@@ -251,6 +254,7 @@ public class GUI extends Application {
         }));
         dataSetTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             dataSetPath = newValue;
+            controller.setCorpusPath(dataSetPath);
 
             if (locationPath != null)
                 startBTN.setDisable(false);
@@ -345,10 +349,10 @@ public class GUI extends Application {
         GridPane mainGrid = new GridPane();
         //setting the grid properties
         mainGrid.setAlignment(Pos.TOP_LEFT);
-        mainGrid.setPadding(new Insets(50, 10, 10, 10));
+        mainGrid.setAlignment(Pos.CENTER);
+        mainGrid.setPadding(new Insets(50, 10, 10, -200));
         mainGrid.setVgap(5);
         mainGrid.setHgap(5);
-        mainGrid.setAlignment(Pos.CENTER);
         //Label and text field  for search box
         Text searchLabel = new Text("Enter Search Query Or DOCNO:");
         TextField searchTextBox = new TextField();
@@ -376,8 +380,9 @@ public class GUI extends Application {
             public void handle(MouseEvent event) {
                 queriesFilePath = controller.chooseFolder();
                 QueriesFileTextBox.setText(queriesFilePath);
-                if (queriesFilePath != null)
+                if (queriesFilePath != null &&(searchtext == null || searchtext.length() == 0 ))
                     run.setDisable(false);
+                else  run.setDisable(true);
             }
         }));
         QueriesFileTextBox.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -385,6 +390,28 @@ public class GUI extends Application {
             if (queriesFilePath != null)
                 run.setDisable(false);
         });
+        searchTextBox.textProperty().addListener((observable, oldValue, newValue) -> {
+            searchtext = newValue;
+            if (searchtext != null && (queriesFilePath == null || queriesFilePath.length() == 0 ))
+                run.setDisable(false);
+            else  run.setDisable(true);
+        });
+        docnoCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                setIsDocno(newValue);
+            }
+        });
+        run.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+               if(isDocno) {
+                   Stage stage = new Stage();
+                   Scene scene = new Scene(createFiveSentencesView(), 800, 600);
+                   stage.setScene(scene);
+                   stage.show();
+               }
+            }
+        }));
         //add to grid and return it
         mainGrid.add(searchLabel, 0, 1);
         mainGrid.add(searchTextBox, 1, 1);
@@ -394,6 +421,15 @@ public class GUI extends Application {
         mainGrid.add(qureiesFileBrowse, 2, 4);
         mainGrid.add(run, 1, 6);
         return mainGrid;
+    }
+    public ListView<String> createFiveSentencesView() {
+
+        //create the Table
+        ListView<String> table = new ListView<String>();
+        //create the observable list from the dictionary
+        ObservableList<String> data = FXCollections.observableArrayList(controller.getSentencesForDocno(searchtext));
+        table.setItems(data);
+        return table;
     }
 
     public static void main(String[] args) {

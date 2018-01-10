@@ -119,7 +119,6 @@ public class Controller {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            //todo read from a file to a field here or in the indexer who will be in the field
         }
 
 //        setChanged();
@@ -160,5 +159,11 @@ public class Controller {
 
     public void reset() {
         indexer.resetIndex(postingsPath,dictAndcachePath+"\\"+"dictionary", dictAndcachePath+"\\"+"cache");
+    }
+
+    public List<String> getSentencesForDocno(String Docno) {
+        Searcher searcher = new Searcher(new Ranker(indexer));
+        List<String> result = searcher.searchDocument(Docno, corpusPath);
+       return result;
     }
 }

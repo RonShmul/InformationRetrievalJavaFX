@@ -110,12 +110,12 @@ public class Searcher {
         LinkedHashMap<String, HashMap<String, Integer>> termsInSentences = new LinkedHashMap<>();
         String[] sentences = content.split(Pattern.quote(". "));
         for (int i = 0; i < sentences.length; i++) {
-            if(sentences[i].length() == 0 || sentences[i].length() == 1 || sentences[i].contains("<"))
+            if(sentences[i].length() < 3 || sentences[i].contains("<"))
                 continue;
             HashMap<String, Integer> termsIndexes = new HashMap<>();
             String sentence = sentences[i];
             String ParsedSentence = parse.callParseForQuery(sentence + " ");
-            String[] termsInSentence = ParsedSentence.split(Pattern.quote(" "));
+            String[] termsInSentence = ParsedSentence.split(" ");
             for (int j = 0; j < termsInSentence.length; j++) {
                 if(termsInSentence[j].length() == 0|| termsInSentence[j].contains("<"))
                     continue;
@@ -139,7 +139,7 @@ public class Searcher {
                 double rank = (double) term.getValue();
                 rank = (documentLength - rank) / documentLength;
                 int tf = terms.get(term.getKey());
-                totalRank += (tf/sentence.getKey().length()) + rank;
+                totalRank += (tf/sentence.getKey().length()+rank);
             }
             rankedSentences.put(sentence.getKey(), totalRank);
         }
