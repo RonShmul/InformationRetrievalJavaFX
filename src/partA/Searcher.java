@@ -39,7 +39,8 @@ public class Searcher {
     }
 
     public List<String> searchForQuery(String query) {
-        String parsedQuery = parseQuery(query);
+        String nQuery = query+" ";
+        String parsedQuery = parseQuery(nQuery);
         System.out.println(parsedQuery);
         List<String> results = ranker.cosSim(parsedQuery);
         return results;
