@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class ReadFile {
     private static String pathStr;
-    private int positionTracker;
+    private long positionTracker;
     private File headDir;
     private File[] listOfDirs;
     private Pattern patternDocNo;
@@ -49,34 +49,35 @@ public class ReadFile {
 
         BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(currentFile));
-            String path = currentFile.getAbsolutePath();
+            FileReader fileReader = new FileReader(currentFile);
+            bufferedReader = new BufferedReader(fileReader);
+            String path = currentFile.getAbsolutePath().substring(currentFile.getAbsolutePath().lastIndexOf('\\')+1);
 
             StringBuilder fileString = new StringBuilder();
 
             String temp;
             boolean isPositionDefined = true;
             positionTracker = 0;
-            int position = 0;
-            //the garbage at the end make the "bufferedReader.ready()" return true and the DOCNO and content are null.. should be handled
+            long position = 0;
             while ((temp = bufferedReader.readLine()) != null) {
+                if(temp.length() <= 10 && temp.contains("<TEXT>")) {
+                    isPositionDefined = false;
+                }
                 if(!isPositionDefined) {
                     position = positionTracker;
                     isPositionDefined = true;
                 }
-
-                positionTracker += (temp.getBytes().length);
+                long size = temp.getBytes().length;
+                positionTracker += size+1;
 
                 fileString.append(temp);
                 fileString.append(" ");
 
-                if (temp.length() <= 7 && temp.contains("</TEXT>")) {
+                if (temp.length() <= 10 && temp.contains("</TEXT>")) {
                     readDoc(fileString.toString(), position, path, documentsOfFile);
                     fileString = new StringBuilder();
                 }
-                if(temp.length() <= 5 && temp.contains("<DOC>")) {
-                    isPositionDefined = false;
-                }
+
             }
             bufferedReader.close();
         } catch (IOException e1) {
