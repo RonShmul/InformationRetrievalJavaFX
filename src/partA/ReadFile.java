@@ -16,7 +16,7 @@ public class ReadFile {
     private File[] listOfDirs;
     private Pattern patternDocNo;
     private Pattern patternText;
-    private HashMap<String, String[]> docsFile;
+    //private HashMap<String, String[]> docsFile;
     //private List<Document> documents;
 
     public ReadFile() {
@@ -24,7 +24,7 @@ public class ReadFile {
         patternText = Pattern.compile("(?<=<TEXT>)(.*?)(?=</TEXT>)");
     }
     public ReadFile(String path){
-        docsFile= new HashMap<String, String[]> ();
+       // docsFile= new HashMap<String, String[]> ();
 
         //documents = new ArrayList<Document>();
         pathStr = path;
@@ -96,9 +96,8 @@ public class ReadFile {
         if(matchDocNo.find()) {
             document.setDocNo(matchDocNo.group());
         }
-        //documents.add(document);  // todo - insert to file and save it for one time
-        String[] docDetails = {document.getPath(), String.valueOf((document.getPositionInFile()))};
-        docsFile.put(document.getDocNo(), docDetails);
+        //String[] docDetails = {document.getPath(), String.valueOf((document.getPositionInFile()))};
+        //docsFile.put(document.getDocNo(), docDetails);
         documentsOfFile.put(document, readDocContent(documentText));
     }
 
@@ -106,7 +105,6 @@ public class ReadFile {
         Matcher matchDocNo = patternDocNo.matcher(documentText);
         if(matchDocNo.find()) {
             String DOCNO = matchDocNo.group();
-           //System.out.println(DOCNO);
         }
         Matcher matchText = patternText.matcher(documentText);
         if(matchText.find()) {
@@ -118,7 +116,7 @@ public class ReadFile {
     //public List<Document> getDocuments() {
    //     return documents;
    // }
-    public void writedocumentsToFile() {
+   /* public void writedocumentsToFile() {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
             for(Map.Entry<String, String[]> doc : docsFile.entrySet()) {
@@ -129,8 +127,7 @@ public class ReadFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-    }
+    }*/
     public static void main(String[] args) {
         String path = "D:\\corpus";
         //get to the main directory
@@ -149,7 +146,7 @@ public class ReadFile {
             corpus.readFile(currFile);
 
         }
-        corpus.writedocumentsToFile();
+        //corpus.writedocumentsToFile();
 
 
     }

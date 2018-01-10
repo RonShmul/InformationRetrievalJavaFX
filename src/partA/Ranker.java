@@ -73,6 +73,9 @@ public class Ranker {
                 return 0;
             }
         });
+        for(Map.Entry<String, Double> entry : forSort) {
+            System.out.println("Docno: " + entry.getKey() + ". Rank: " + entry.getValue());
+        }
         List<String> relevantDocs = new ArrayList<>();
 
         for (Map.Entry<String, Double> doc : forSort) {

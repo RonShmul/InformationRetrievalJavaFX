@@ -737,19 +737,43 @@ public class Indexer {
 
 
     public static void main(String[] args) {
-        Indexer in = new Indexer("d:\\documents\\users\\ronshmul\\Documents\\halfCorpus" , "d:\\documents\\users\\ronshmul\\Documents\\posting" , false);
+        Indexer in = new Indexer("D:\\corpus" , "D:\\PostingFiles" , false);
+        File file = new File("D:\\PostingFiles\\");
+
+        if(file != null) {
+            try {
+                String path = file.getAbsolutePath();
+                int index = path.lastIndexOf('\\');
+                if(index >= path.length()-1) {
+                    path = path.substring(0, index);
+                }
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "dictionary")));
+                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "cache")));
+
+                in.setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
+                in.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
+                objectInputStreamCache.close();
+                objectInputStreamDict.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         Ranker rank = new Ranker(in);
         Searcher searcher = new Searcher(rank);
-        in.initialize();
-        List<String> s = searcher.searchForQuery("Factory, ugly adoption");
-        int queryId = 0;
+        List<String> s = searcher.searchForQuery("Falkland petroleum exploration");
+        int queryId = 351;
         File results = new File("D:\\results");
         try {
             BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
             for (int i = 0; i < s.size(); i++) {
-                writeToResult.write(queryId + " 0 " + s.get(i) + " 1 1" +"\n\r");
-                System.out.println(s.get(i));
+                String toInsert = queryId + " 0 " + s.get(i) + " 1 1 mt" +"\r\n";
+                writeToResult.write(toInsert);
+              //  System.out.println(toInsert);
             }
+            writeToResult.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

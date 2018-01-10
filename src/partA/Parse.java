@@ -1,5 +1,9 @@
 package partA;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,15 +13,16 @@ public class Parse {
 
     private static Map<String, String> months;
     private HashSet<String> stopWords;
+    private HashSet<Character> specials;
+    private HashMap<String, MetaData> parsedTerms;
+    private List<Document> documents;
     private Pattern wordP;
     private Pattern numberP;
     private Pattern upperCaseP;
-    private HashSet<Character> specials;
+    private Document currDoc;
+    private String parsedQuery;
     private boolean isStemm;
     private boolean isQuery;
-    private Document currDoc;
-    private HashMap<String, MetaData> parsedTerms;
-    private String parsedQuery;
 
     /**
      * constructor
@@ -39,6 +44,8 @@ public class Parse {
         parsedQuery = "";
         setMonthMap();
         setStopWords();
+         documents= new ArrayList<>();
+
     }
 
     /**
@@ -208,6 +215,7 @@ public class Parse {
             String docContent = doc.getValue();
             docContent+=" ";
             parse(docContent);
+            documents.add(currDoc);
         }
         return parsedTerms;
     }
@@ -624,13 +632,30 @@ public class Parse {
                     potentialTermMetaData.getFrequencyInDoc().put(currDoc, currTf + 1);
                     if (currDoc.getMaxTf() < currTf) {
                         currDoc.setMaxTf(currTf);
-                        currDoc.setCommonTerm(term);
                     }
                 }
             }
         }
-        currDoc.setLength(currDoc.getLength()+1); //todo - update here
+        currDoc.setLength(currDoc.getLength()+1);
+      }
+
+    private void insertDocumentsToFile() {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
+            long allDocsLength = 0;
+            for (int i = 0; i < documents.size(); i++) {
+                Document current = documents.get(i);
+                allDocsLength += current.getLength();
+                String documentEntry = current.getDocNo() + ":" + current.getPath() + "," + current.getPositionInFile() + "," + current.getLength() + "," + current.getMaxTf() + "\n";
+                bufferedWriter.write(documentEntry);
+            }
+            bufferedWriter.close();
+            System.out.println(allDocsLength);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
     /**
      * function to parse number with percent to be in the format: number percent.
      * call to the function: number to fix the decimal number.
