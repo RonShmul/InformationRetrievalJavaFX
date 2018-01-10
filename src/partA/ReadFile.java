@@ -105,7 +105,7 @@ public class ReadFile {
         Matcher matchDocNo = patternDocNo.matcher(documentText);
         if(matchDocNo.find()) {
             String DOCNO = matchDocNo.group();
-           System.out.println(DOCNO);
+           //System.out.println(DOCNO);
         }
         Matcher matchText = patternText.matcher(documentText);
         if(matchText.find()) {
