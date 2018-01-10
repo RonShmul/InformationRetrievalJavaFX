@@ -15,7 +15,7 @@ public class Parse {
     private HashSet<String> stopWords;
     private HashSet<Character> specials;
     private HashMap<String, MetaData> parsedTerms;
-    private static List<Document> documents;
+    private static List<Document> documents = new ArrayList<>();
     private Pattern wordP;
     private Pattern numberP;
     private Pattern upperCaseP;
@@ -44,7 +44,7 @@ public class Parse {
         parsedQuery = "";
         setMonthMap();
         setStopWords();
-         documents= new ArrayList<>();
+
 
     }
 

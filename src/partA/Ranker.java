@@ -10,6 +10,7 @@ public class Ranker {
     private HashMap<String, Double> weights;
     private double b = 0.75;
     private double k = 1.4;
+    private static final int avvDocLength = ((114737761)/(468370));
 
     public Ranker(Indexer indexer) {
         this.indexer = indexer;

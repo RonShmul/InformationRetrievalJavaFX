@@ -73,8 +73,9 @@ public class Searcher {
         }
         int index = docnoEntry.indexOf(':') + 1;
         String fileName = docnoEntry.substring(index, docnoEntry.indexOf(','));
-        index = docnoEntry.indexOf(',') + 1;
-        String positionInFile = docnoEntry.substring(index);
+        int indexFirstComma = docnoEntry.indexOf(',') + 1;
+        int indexSecondComma = docnoEntry.indexOf(',', indexFirstComma);
+        String positionInFile = docnoEntry.substring(indexFirstComma, indexSecondComma);
         ReadFile readFile = new ReadFile();
         String content = getTheDocumentText(corpusPath, fileName, positionInFile);
         return getFiveImportantSentences(content);
