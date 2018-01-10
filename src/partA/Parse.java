@@ -15,7 +15,7 @@ public class Parse {
     private HashSet<String> stopWords;
     private HashSet<Character> specials;
     private HashMap<String, MetaData> parsedTerms;
-    private List<Document> documents;
+    private static List<Document> documents;
     private Pattern wordP;
     private Pattern numberP;
     private Pattern upperCaseP;
@@ -639,12 +639,14 @@ public class Parse {
         currDoc.setLength(currDoc.getLength()+1);
       }
 
-    private void insertDocumentsToFile() {
+    public void insertDocumentsToFile() {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
             long allDocsLength = 0;
             for (int i = 0; i < documents.size(); i++) {
+
                 Document current = documents.get(i);
+                System.out.println(current.getDocNo());
                 allDocsLength += current.getLength();
                 String documentEntry = current.getDocNo() + ":" + current.getPath() + "," + current.getPositionInFile() + "," + current.getLength() + "," + current.getMaxTf() + "\n";
                 bufferedWriter.write(documentEntry);
