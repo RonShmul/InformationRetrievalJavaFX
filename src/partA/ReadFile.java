@@ -55,27 +55,28 @@ public class ReadFile {
             StringBuilder fileString = new StringBuilder();
 
             String temp;
-            boolean isPositionDefined = false;
+            boolean isPositionDefined = true;
             positionTracker = 0;
             int position = 0;
             //the garbage at the end make the "bufferedReader.ready()" return true and the DOCNO and content are null.. should be handled
             while ((temp = bufferedReader.readLine()) != null) {
-               positionTracker += (temp.length());
-
-                fileString.append(temp);
-                fileString.append(" ");
-                if(temp.length() <= 10 && temp.contains("<TEXT>")) {
-                    isPositionDefined = false;
-                }
                 if(!isPositionDefined) {
                     position = positionTracker;
                     isPositionDefined = true;
                 }
-                if (temp.length() <= 10 && temp.contains("</TEXT>")) {
+
+                positionTracker += (temp.getBytes().length);
+
+                fileString.append(temp);
+                fileString.append(" ");
+
+                if (temp.length() <= 7 && temp.contains("</TEXT>")) {
                     readDoc(fileString.toString(), position, path, documentsOfFile);
                     fileString = new StringBuilder();
                 }
-
+                if(temp.length() <= 5 && temp.contains("<DOC>")) {
+                    isPositionDefined = false;
+                }
             }
             bufferedReader.close();
         } catch (IOException e1) {
@@ -95,12 +96,17 @@ public class ReadFile {
             document.setDocNo(matchDocNo.group());
         }
         //documents.add(document);  // todo - insert to file and save it for one time
-        String[] docDetails = {document.getPath(), ((Long)document.getPositionInFile()).toString()};
+        String[] docDetails = {document.getPath(), String.valueOf((document.getPositionInFile()))};
         docsFile.put(document.getDocNo(), docDetails);
         documentsOfFile.put(document, readDocContent(documentText));
     }
 
     public String readDocContent(String documentText) {
+        Matcher matchDocNo = patternDocNo.matcher(documentText);
+        if(matchDocNo.find()) {
+            String DOCNO = matchDocNo.group();
+           System.out.println(DOCNO);
+        }
         Matcher matchText = patternText.matcher(documentText);
         if(matchText.find()) {
             return matchText.group();

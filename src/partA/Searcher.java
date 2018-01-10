@@ -2,6 +2,7 @@ package partA;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Searcher {
     //private File queryFile;  //todo - dont forget in the gui change the path to file
@@ -86,10 +87,12 @@ public class Searcher {
             StringBuilder docText = new StringBuilder();
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
-                if (line.length() <= 8 && line.contains("</TEXT>"))
-                    break;
                 docText.append(line);
                 docText.append(" ");
+                if (line.length() <= 8 && line.contains("</TEXT>")) {
+                    break;
+
+                }
             }
             documentText = docText.toString();
         } catch (IOException e) {
@@ -104,7 +107,7 @@ public class Searcher {
         Parse parse = new Parse(false, true);
         HashMap<String, Integer> terms = new HashMap<>();
         LinkedHashMap<String, HashMap<String, Integer>> termsInSentences = new LinkedHashMap<>();
-        String[] sentences = content.split(".");
+        String[] sentences = content.split(Pattern.quote("."));
         for (int i = 0; i < sentences.length; i++) {
             HashMap<String, Integer> termsIndexes = new HashMap<>();
             String sentence = sentences[i];
@@ -154,7 +157,7 @@ public class Searcher {
     }
     public static void main(String[] args) {
         Searcher searcher = new Searcher(new Ranker(new Indexer()));
-        List<String> result = searcher.searchDocument("FBIS3-5112", "D:\\corpus");
+        List<String> result = searcher.searchDocument("FBIS3-5109", "D:\\corpus");
         for (int i = 0; i < result.size(); i++) {
             System.out.println(result.get(i));
         }
