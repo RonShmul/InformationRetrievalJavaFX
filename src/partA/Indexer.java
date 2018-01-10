@@ -118,11 +118,13 @@ public class Indexer {
             //get all the parsed terms of a specific file
             HashMap<String, MetaData> termsToIndex = parse.InitializeParseForDoc(toParse);
             //send to a method that construct the indexing
-            constructPosting(termsToIndex);
+            //constructPosting(termsToIndex);
             parse.clearTerms();
         }
-        mergePosting();
-        saveWeights();
+        Parse parse = new Parse(true, true);
+        parse.insertDocumentsToFile();
+        //mergePosting();
+        //saveWeights();
     }
 
     private void constructPosting(HashMap<String, MetaData> termsToIndex) {
