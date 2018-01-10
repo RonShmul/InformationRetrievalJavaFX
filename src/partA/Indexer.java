@@ -741,14 +741,14 @@ public class Indexer {
         Ranker rank = new Ranker(in);
         Searcher searcher = new Searcher(rank);
         in.initialize();
-        List<String> s = searcher.searchForQuery("Factory, ugly adoption");
-        int queryId = 0;
+        List<String> s = searcher.searchForQuery("Falkland petroleum exploration");
+        int queryId = 351;
         File results = new File("D:\\results");
         try {
             BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
             for (int i = 0; i < s.size(); i++) {
-                writeToResult.write(queryId + " 0 " + s.get(i) + " 1 1" +"\n\r");
-                System.out.println(s.get(i));
+                writeToResult.write(queryId + " 0 " + s.get(i) + " 1 1 mt" +"\n\r");
+                //System.out.println(s.get(i));
             }
         } catch (IOException e) {
             e.printStackTrace();
