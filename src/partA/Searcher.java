@@ -108,13 +108,17 @@ public class Searcher {
         Parse parse = new Parse(false, true);
         HashMap<String, Integer> terms = new HashMap<>();
         LinkedHashMap<String, HashMap<String, Integer>> termsInSentences = new LinkedHashMap<>();
-        String[] sentences = content.split(Pattern.quote("."));
+        String[] sentences = content.split(Pattern.quote(". "));
         for (int i = 0; i < sentences.length; i++) {
+            if(sentences[i].length() == 0 || sentences[i].length() == 1 || sentences[i].contains("<"))
+                continue;
             HashMap<String, Integer> termsIndexes = new HashMap<>();
             String sentence = sentences[i];
             String ParsedSentence = parse.callParseForQuery(sentence + " ");
-            String[] termsInSentence = ParsedSentence.split(" ");
+            String[] termsInSentence = ParsedSentence.split(Pattern.quote(" "));
             for (int j = 0; j < termsInSentence.length; j++) {
+                if(termsInSentence[j].length() == 0|| termsInSentence[j].contains("<"))
+                    continue;
                 if (terms.containsKey(termsInSentence[j])) {
                     Integer tf = terms.get(termsInSentence[j]);
                     terms.put(termsInSentence[j], tf + 1);
@@ -133,11 +137,11 @@ public class Searcher {
             double totalRank = 0;
             for (Map.Entry<String, Integer> term : termsInSentence.entrySet()) {
                 double rank = (double) term.getValue();
-                rank = 1 / rank;
+                rank = (documentLength - rank) / documentLength;
                 int tf = terms.get(term.getKey());
-                totalRank += rank * tf;
+                totalRank += (tf/sentence.getKey().length()) + rank;
             }
-            rankedSentences.put(sentence.getKey(), (Double) totalRank);
+            rankedSentences.put(sentence.getKey(), totalRank);
         }
         List<Map.Entry<String, Double>> toSort = new ArrayList<>(rankedSentences.entrySet());
         toSort.sort(new Comparator<Map.Entry<String, Double>>() {
@@ -150,15 +154,16 @@ public class Searcher {
                 } else return 0;
             }
         });
+
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             result.add(toSort.get(i).getKey());
         }
         return result;
     }
     public static void main(String[] args) {
         Searcher searcher = new Searcher(new Ranker(new Indexer()));
-        List<String> result = searcher.searchDocument("FBIS3-5109", "D:\\corpus");
+        List<String> result = searcher.searchDocument("FBIS3-5285", "D:\\corpus");
         for (int i = 0; i < result.size(); i++) {
             System.out.println(result.get(i));
         }
