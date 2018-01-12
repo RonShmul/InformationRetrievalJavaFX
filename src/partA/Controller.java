@@ -119,6 +119,7 @@ public class Controller {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            indexer.cleanDictionary();
         }
 
 //        setChanged();

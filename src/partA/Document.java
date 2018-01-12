@@ -11,16 +11,34 @@ public class Document implements Serializable{ // A class that helps us to save 
     private long positionInFile; //the first bit of the document - where it starts
     private int length;
     private int maxTf;
-
+    private double weight;
+    /*
+    constructors
+     */
     public Document() {
         length = 0;
     }
 
-    public Document(String path, String docNo, long positionInFile, int length, String commonTerm) {
+    public Document(String path, String docNo, long positionInFile, int length, int maxTf, double weight) {
         this.path = path;
         this.docNo = docNo;
         this.positionInFile = positionInFile;
         this.length = length;
+        this.maxTf = maxTf;
+        this.weight = weight;
+    }
+
+    /*
+    getters and setters
+     */
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public double getWeight() {
+
+        return weight;
     }
 
     public int getMaxTf() {

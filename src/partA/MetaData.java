@@ -2,9 +2,7 @@ package partA;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Ronshmul on 10/12/2017.
- */
+
 public class MetaData {
     private int df;
     private int frequencyInCorpus;

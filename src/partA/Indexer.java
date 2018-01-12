@@ -1,6 +1,5 @@
 package partA;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Indexer {
@@ -11,9 +10,12 @@ public class Indexer {
     private String filesPath;
     private int counterForFiles;
     private boolean toStemm;
-    private HashMap<String, Double> weights;
+    private HashMap<String, Document> documents;
     private static final int N = 468370;
 
+    /*
+    constructors
+     */
     public Indexer() {
 
     }
@@ -24,10 +26,11 @@ public class Indexer {
         Dictionary = new HashMap<>();
         counterForFiles = 0;
         cache = new HashMap<>();
-        weights = new HashMap<>();
-
+        documents = new HashMap<>();
     }
-
+    /*
+    getters and setters
+     */
     public String getCorpusPath() {
         return corpusPath;
     }
@@ -53,6 +56,10 @@ public class Indexer {
         return terms;
     }
 
+    public HashMap<String, Document> getDocuments() {
+        return documents;
+    }
+
     public HashMap<String, String> getCache() {
         return cache;
     }
@@ -61,40 +68,39 @@ public class Indexer {
         this.cache = cache;
     }
 
-    public HashMap<String, Double> getWeights() {
-        return weights;
-    }
+    /**
+     * get all the needed (indexed) files to the program memory - cache, dictionart and document data structure.
+     */
+    public void generateIndex() {
+        File file = new File("D:\\Posting\\"); //todo: figure it out with the GUI
 
-    public void setWeights(HashMap<String, Double> weights) {
-        this.weights = weights;
-    }
-
-    public void saveWeights() {
-        File file = new File("weights");
-        if (file != null) {
+        if(file != null) {
             try {
-                ObjectOutputStream objectOutputStreamWeight = new ObjectOutputStream(new FileOutputStream(file));
-                objectOutputStreamWeight.writeObject(getWeights());
-                objectOutputStreamWeight.close();
+                String path = file.getAbsolutePath();
+                int index = path.lastIndexOf('\\');
+                if(index >= path.length()-1) {
+                    path = path.substring(0, index);
+                }
+                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "dictionary")));
+                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "cache")));
+
+                setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
+                setCache((HashMap<String, String>)objectInputStreamCache.readObject());
+                objectInputStreamCache.close();
+                objectInputStreamDict.close();
+                createDocumentsMap();
+
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void loadWeights() {
-        File file = new File("weights");
-            try {
-                ObjectInputStream objectInputStreamWeight = new ObjectInputStream(new FileInputStream(file));
-                setWeights((HashMap<String, Double>) objectInputStreamWeight.readObject());
-                objectInputStreamWeight.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-    }
-
+    /**
+     * create the index from the start - read the files and seperate the documents, parse the terms and create the posting files, document file, dictionary and cache.
+     */
     public void initialize() {
         //createCache();
         //create new readFile
@@ -118,15 +124,18 @@ public class Indexer {
             //get all the parsed terms of a specific file
             HashMap<String, MetaData> termsToIndex = parse.InitializeParseForDoc(toParse);
             //send to a method that construct the indexing
-            //constructPosting(termsToIndex);
+            constructPosting(termsToIndex);
             parse.clearTerms();
         }
-        Parse parse = new Parse(true, true);
-        parse.insertDocumentsToFile();
-        //mergePosting();
-        //saveWeights();
+        mergePosting();
+        insertDocumentsToFile();
+        cleanDictionary();
     }
 
+    /**
+     * create a temporary posting file for each file int the corpus.
+     * @param termsToIndex
+     */
     private void constructPosting(HashMap<String, MetaData> termsToIndex) {
         try {
             BufferedWriter temporaryPostingFile = new BufferedWriter(new FileWriter(filesPath + "\\" + counterForFiles));
@@ -142,7 +151,9 @@ public class Indexer {
                 }
                 String toTemp = term.getKey() + ":";
                 for (Map.Entry<Document, Integer> tf : term.getValue().getFrequencyInDoc().entrySet()) {
-                    toTemp = toTemp.concat(tf.getKey().getDocNo() + ":" + ((double)tf.getValue())/tf.getKey().getLength() + ",");
+                    Document doc = tf.getKey();
+                    toTemp = toTemp.concat(doc.getDocNo() + ":" + ((double)tf.getValue())/tf.getKey().getLength() + ",");
+                    documents.put(doc.getDocNo(), doc);
                 }
                 listToTempPosting.add(toTemp);
             }
@@ -165,6 +176,9 @@ public class Indexer {
         }
     }
 
+    /**
+     * marge all the temporary posting files to final posting files.
+     */
     public void mergePosting() {   // merging the temporary posting files - two in each iteration
         try {
             int count = 0;
@@ -212,6 +226,9 @@ public class Indexer {
         }
     }
 
+    /**
+     * this methos is responsible for the last merge iteration to the final posting files.
+     */
     private void finalPosting() {   //read the last two posting files
 
         String ae = "abcde";
@@ -577,6 +594,28 @@ public class Indexer {
         }
     }
 
+    /**
+     * method to write teh documents data structure to a file.
+     */
+    public void insertDocumentsToFile() {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
+            for (Map.Entry<String, Document> doc : documents.entrySet()) {
+
+                Document current = doc.getValue();
+                String documentEntry = current.getDocNo() + ":" + current.getPath() + "," + current.getPositionInFile() + "," + current.getLength() + "," + current.getMaxTf() +"," + current.getWeight() + "\n";
+                bufferedWriter.write(documentEntry);
+            }
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * calculate the weight for all the documents - the sum of the weight of each word in the document power 2
+     * @param posting
+     */
     public void calculateWeight(String posting){
         String term = posting.substring(0,posting.indexOf(":"));
         if(!term.equals("")) {
@@ -593,15 +632,18 @@ public class Indexer {
                 Double tf = Double.parseDouble(docTf);
                 tempPost = tempPost.substring(tempPost.indexOf(",")+1);
                 Double finalWeight = Math.pow(tf * idf, 2);
-                if (weights.get(docNo) == null) {
-                    weights.put(docNo, finalWeight);
-                } else {
-                    weights.put(docNo, weights.get(docNo) + finalWeight);
-                }
+               Document doc = documents.get(docNo);
+               doc.setWeight(finalWeight);
             }
         }
     }
 
+    /**
+     * get 2 files and merge them to a third sorted file.
+     * @param first
+     * @param second
+     * @param writeToFile
+     */
     public void helpMerge(BufferedReader first, BufferedReader second, BufferedWriter writeToFile) {    // a help function for merging 2 temp posting file for one
         try {
             //read the first lines from 2 files
@@ -612,10 +654,10 @@ public class Indexer {
             while (fLine != null && sLine != null) {
                 String fTerm = fLine.substring(0, fLine.indexOf(":", 0));
                 String sTerm = sLine.substring(0, sLine.indexOf(":", 0));
-                if (fTerm.compareTo(sTerm) == 1) {  //if the second term is smaller than the first term - we will write the second to the file
+                if (fTerm.compareTo(sTerm) > 0) {  //if the second term is smaller than the first term - we will write the second to the file
                     writeToFile.write(sLine + "\n");
                     sLine = second.readLine();
-                } else if (fTerm.compareTo(sTerm) == -1) {  // if the first term is smaller than the second
+                } else if (fTerm.compareTo(sTerm) < 0) {  // if the first term is smaller than the second
                     writeToFile.write(fLine + "\n");
                     fLine = first.readLine();
                 } else {    //if its the same term - we need to merge between the information
@@ -647,6 +689,9 @@ public class Indexer {
 
     }
 
+    /**
+     * this method helps create the cache
+     */
     public void createCacheWordFile() {
         List<Term> allTerms = new ArrayList<>(Dictionary.values());
         allTerms.sort(new Comparator<Term>() {
@@ -667,6 +712,9 @@ public class Indexer {
 
     }
 
+    /**
+     * method to initial the cache
+     */
     public void createCache() {
       try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("CacheWords")));
@@ -682,6 +730,10 @@ public class Indexer {
         }
     }
 
+    /**
+     * insert a relevant term to the cache and the first 10 relevant documents fromt he postiing file.
+     * @param postingLine
+     */
     public void insertToCache(String postingLine) {
         if(cache.containsKey(postingLine.substring(0, postingLine.indexOf(":")))) {
             String docs = postingLine.substring((postingLine.indexOf(":") + 1));
@@ -709,6 +761,12 @@ public class Indexer {
         }
     }
 
+    /**
+     * todo: create the reset button for part B
+     * @param finalPostingFilesPath
+     * @param dictionaryFilePath
+     * @param caheFilePath
+     */
     public void resetIndex(String finalPostingFilesPath, String dictionaryFilePath, String caheFilePath) {//todo: fix it
         //delete dictionary file
         File dictionaryFile = new File(dictionaryFilePath);
@@ -737,10 +795,57 @@ public class Indexer {
         postings.delete();
     }
 
+    /**
+     * create the documents data structure from the documents file.
+     */
+    public void createDocumentsMap() {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("documents")));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                //get the docno from the line
+                int indexAfterDocno = line.indexOf(':');
+                String docno = line.substring(0, indexAfterDocno);
+                //get the file name from the line
+                int indexAfterFileName = line.indexOf(',');
+                String fileName = line.substring(indexAfterDocno + 1, indexAfterFileName);
+                //get the position from the line
+                int indexAfterPosition = line.indexOf(',', indexAfterFileName + 1);
+                long position = Long.parseLong(line.substring(indexAfterFileName + 1, indexAfterPosition));
+                //get the length from the line
+                int indexAfterLength = line.indexOf(',', indexAfterPosition + 1);
+                int length = Integer.parseInt(line.substring(indexAfterPosition + 1, indexAfterLength));
+                //get the length from the line
+                int indexAfterMaxTf = line.lastIndexOf(',');
+                int maxTf = Integer.parseInt(line.substring(indexAfterLength + 1, indexAfterMaxTf));
+                //get the weight from the line
+                double weight = Double.parseDouble(line.substring(indexAfterMaxTf + 1));
+                Document document = new Document(fileName, docno, position, length, maxTf, weight);
+                documents.put(docno, document);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * remove too rare words from the dictionary.
+     */
+    public void cleanDictionary() {
+        Iterator<Map.Entry<String,Term>> iter = Dictionary.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String,Term> entry = iter.next();
+            if(entry.getValue().getFrequencyInCorpus() < 3){
+                iter.remove();
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
-        Indexer in = new Indexer("D:\\corpus" , "D:\\PostingFiles" , false);
-        File file = new File("D:\\PostingFiles\\");
+        Indexer in = new Indexer("D:\\corpus" , "D:\\Posting" , false);
+        File file = new File("D:\\Posting\\");
 
         if(file != null) {
             try {
@@ -756,6 +861,7 @@ public class Indexer {
                 in.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
                 objectInputStreamCache.close();
                 objectInputStreamDict.close();
+                in.createDocumentsMap();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -767,7 +873,7 @@ public class Indexer {
         Searcher searcher = new Searcher(rank);
         List<String> s = searcher.searchForQuery("Falkland petroleum exploration");
         int queryId = 351;
-        File results = new File("D:\\results.txt");
+        File results = new File("C:\\Users\\sivanrej\\Downloads\\results.txt");
         try {
             BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
             for (int i = 0; i < s.size(); i++) {

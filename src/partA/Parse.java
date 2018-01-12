@@ -15,7 +15,6 @@ public class Parse {
     private HashSet<String> stopWords;
     private HashSet<Character> specials;
     private HashMap<String, MetaData> parsedTerms;
-    private static List<Document> documents = new ArrayList<>();
     private Pattern wordP;
     private Pattern numberP;
     private Pattern upperCaseP;
@@ -124,6 +123,9 @@ public class Parse {
         return str;
     }
 
+    /**
+     * set all the stop words in the program memory
+     */
     private void setStopWords() {
         stopWords.add("a");stopWords.add("a's");stopWords.add("able");stopWords.add("about");stopWords.add("above");stopWords.add("according");stopWords.add("accordingly");stopWords.add("across");
         stopWords.add("actually");stopWords.add("after");stopWords.add("afterwards");stopWords.add("again");stopWords.add("against");stopWords.add("ain't");stopWords.add("all");stopWords.add("allow");
@@ -215,16 +217,26 @@ public class Parse {
             String docContent = doc.getValue();
             docContent+=" ";
             parse(docContent);
-            documents.add(currDoc);
         }
         return parsedTerms;
     }
 
+    /**
+     * parse method for queries
+     * @param queryContent
+     * @return
+     */
     public String callParseForQuery(String queryContent){
         parse(queryContent);
-        return parsedQuery;
+        String query = parsedQuery;
+        parsedQuery = "";
+        return query;
     }
 
+    /**
+     *a methos to concat the parsed query words
+     * @param term
+     */
     public void forParsedQuery(String term){
         if(parsedQuery.equals(""))
             parsedQuery = term;
@@ -234,6 +246,10 @@ public class Parse {
         }
     }
 
+    /**
+     * send the term to its proper function according to which its a query or a term from the corpus
+     * @param term
+     */
     public void sendTerm(String term){
         if(isQuery){
             forParsedQuery(term);
@@ -265,6 +281,13 @@ public class Parse {
                 if (index + 1 >= content.length() || index == -1 || pos == -1) {
                     sendTerm(potentialTerm);
                     break;
+                }
+
+                if(potentialTerm.contains("-")) {
+                    String[] potentialTerms = HyphenWords(potentialTerm);
+                    for (int i = 0; i < potentialTerms.length; i++) {
+                        sendTerm(potentialTerms[i].trim());
+                    }
                 }
                 //configure the matcher with the potential term
                 Matcher numberM = numberP.matcher(potentialTerm);
@@ -601,6 +624,8 @@ public class Parse {
     public void updatePotentialTerm(String term) {
         if(containsDigit(term)) {
             term = term.replaceAll("[^a-zA-Z0-9/. ]", "");
+            if(term.charAt(0) == '.')
+                return;
         }
         else{
             term = term.replaceAll("[^a-zA-Z0-9 ]", "");
@@ -639,24 +664,6 @@ public class Parse {
         currDoc.setLength(currDoc.getLength()+1);
       }
 
-    public void insertDocumentsToFile() {
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
-            long allDocsLength = 0;
-            for (int i = 0; i < documents.size(); i++) {
-
-                Document current = documents.get(i);
-                System.out.println(current.getDocNo());
-                allDocsLength += current.getLength();
-                String documentEntry = current.getDocNo() + ":" + current.getPath() + "," + current.getPositionInFile() + "," + current.getLength() + "," + current.getMaxTf() + "\n";
-                bufferedWriter.write(documentEntry);
-            }
-            bufferedWriter.close();
-            System.out.println(allDocsLength);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * function to parse number with percent to be in the format: number percent.
@@ -710,12 +717,7 @@ public class Parse {
 
     }
     /**
-     * expressions like word-word will be split to: word, words and word word.
-     * @param str
-     * @return String[]
-     */
-
-    /**
+     * remove 's from the and of words if there is.
      * @param str
      * @return String
      */
@@ -753,6 +755,16 @@ public class Parse {
             return str + " dollar";
         }
     }
+
+    /**
+     * get string with hyphens and return an array with all the words between the hyphens
+     * @param term
+     * @return String[]
+     */
+    public String[] HyphenWords(String term) {
+        String[] words = term.split("-+");
+        return words;
+    }
     /**
      * turn a.b.c to abc.
      * @param str
@@ -779,38 +791,19 @@ public class Parse {
         return temp;
     }
 
+    /**
+     * allow an outside function to clear all the term in the terms data structure
+     */
     public void clearTerms() {
         parsedTerms.clear();
     }
 
     public static void main(String[] args) {
-        List<Integer> numbers = new ArrayList<>();
-        numbers.add(4);
-        numbers.add(56);
-        numbers.add(3);
-        numbers.add(6);
-        numbers.add(8);
-        numbers.add(2);
-        numbers.add(12);
-        numbers.add(19);
-        numbers.add(27);
-        numbers.add(98);
-
-        numbers.sort(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                if(o1 < o2) {
-                    return 1;
-                }
-                else if(o1 > o2) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
-        for (Integer num:numbers
-             ) {
-            System.out.println(num);
+        Parse parse = new Parse(false, false);
+        String term = "word1-word2--word3 -- word4- word5";
+        String[] terms = parse.HyphenWords(term);
+        for (int i = 0; i < terms.length; i++) {
+            System.out.println(terms[i].trim());
         }
     }
 }

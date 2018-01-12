@@ -19,17 +19,27 @@ public class Searcher {
         return parsedQuery;
     }
 
-    public List<String> parseQueriesInFile(File queryFile) {
-        List<String> parsedQueries = new ArrayList<>();
+    public HashMap<String, String> parseQueriesInFile(File queryFile) {
+
+        HashMap<String, String> parsedQueries = new HashMap<>();
         try {
             Parse parse = new Parse(isStemm, true);
             BufferedReader readQueries = new BufferedReader(new FileReader(queryFile));
             String line = readQueries.readLine();
+            String query = null;
+            String number=null;
             while (line != null) {
+                if(line.contains("<num>")) {
+                    number = line.substring(line.indexOf(" ", line.indexOf(":")) + 1).trim();
+                }
                 if (line.contains("<title>")) {
                     String specificQ = line.substring(line.indexOf(" ") + 1);
-                    String afterParse = parse.callParseForQuery(specificQ);
-                    parsedQueries.add(afterParse);
+                    query = parse.callParseForQuery(specificQ);
+                }
+                if(number != null && query !=null) {
+                    parsedQueries.put(query, number);
+                    number = null;
+                    query = null;
                 }
                 line = readQueries.readLine();
             }
@@ -47,15 +57,35 @@ public class Searcher {
         return results;
     }
 
-    public HashMap<String, List<String>> SearchForFile(File queryFile) {
-        List<String> parsedQueries = parseQueriesInFile(queryFile);
+    public HashMap<String, List<String>> SearchForFile(File queryFile) { // todo: return with the query number or query title. note that the query is parsed, do not return it parsed to the GUI
+        HashMap<String, String> parsedQueries = parseQueriesInFile(queryFile);
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
-        for (int i = 0; i < parsedQueries.size(); i++) {
-            String specificQuery = parsedQueries.get(i);
+        for (Map.Entry<String, String> query : parsedQueries.entrySet()) {
+            String specificQueryNumber = query.getValue();
+            String specificQuery = query.getKey();
             List<String> result = ranker.ranking(specificQuery);
-            results.put(specificQuery, result);
+            results.put(specificQueryNumber, result);
         }
         return results;
+    }
+
+    public void queriesResultFile(File file) {
+        HashMap<String, List<String>> result = SearchForFile(file);
+        File results = new File("C:\\Users\\sivanrej\\Downloads\\results.txt");//todo: which directory in the end?
+        try {
+            BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
+            for(Map.Entry<String, List<String>> queryResult : result.entrySet()) {
+                List<String> s = queryResult.getValue();
+                for (int i = 0; i < s.size() ; i++) {
+                    String toInsert = queryResult.getKey() + " 0 " + s.get(i) + " 1 1 mt" + "\r\n";
+                    writeToResult.write(toInsert);
+                    //  System.out.println(toInsert);
+                }
+            }
+            writeToResult.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<String> searchDocument(String docno, String corpusPath) {
@@ -163,10 +193,10 @@ public class Searcher {
         return result;
     }
     public static void main(String[] args) {
-        Searcher searcher = new Searcher(new Ranker(new Indexer()));
-        List<String> result = searcher.searchDocument("FBIS3-5285", "D:\\corpus");
-        for (int i = 0; i < result.size(); i++) {
-            System.out.println(result.get(i));
-        }
+        Indexer indexer = new Indexer("D:\\corpus", "D:\\Postiong", false);
+        indexer.generateIndex();
+        Searcher searcher = new Searcher(new Ranker(indexer));
+
+        searcher.queriesResultFile(new File("D:\\queries.txt"));
     }
     }

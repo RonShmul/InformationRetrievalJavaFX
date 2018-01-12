@@ -7,31 +7,50 @@ public class Ranker {
 
     private Indexer indexer;
     private HashMap<String, Double> calculateW;
-    private HashMap<String, Double> weights;
     private double b = 0.75;
-    private double k = 1.4;
-    private static final int avvDocLength = ((114737761)/(468370));
+    private double k = 1.2;
+    private static final int avgDocLength = ((114737761)/(468370));
 
+    /**
+     * constructor
+     * @param indexer
+     */
     public Ranker(Indexer indexer) {
         this.indexer = indexer;
         calculateW = new HashMap<>();
     }
 
-    public List<String> ranking(String query) {  //todo - maybe pass the load weights to here
-        String[] parts = query.split(" ");
-        int len = parts.length;
-        indexer.loadWeights();
-        weights = indexer.getWeights();
-        for (int i = 0; i < len; i++) {
-            Term t = indexer.getDictionary().get(parts[i]);
+    /**
+     * calculate the rank for a all the documents that contain the words in a given query.
+     * @param query
+     * @return
+     */
+    public List<String> ranking(String query) {
+        String[] queriesWords = query.split(" ");
+        int len = queriesWords.length;
+
+        for (int j = 0; j < len; j++) {
+            Term t = indexer.getDictionary().get(queriesWords[j]);
             int df = t.getDf();
             String path = t.getPostingFilePath();
             long position = t.getPointerToPostings();
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-                long skiped = reader.skip(position);
+                reader.skip(position);
                 String termInPosting = reader.readLine();
-                calcCosSim(termInPosting , df , len);
+                termInPosting = termInPosting.substring(termInPosting.indexOf(':') +1);
+                String[] documentsOfTerm = termInPosting.split(",");
+                for (int i = 0; i < documentsOfTerm.length; i++) {
+                    String docNo = documentsOfTerm[i].substring(0, documentsOfTerm[i].indexOf(":"));
+                    double tf = Double.parseDouble(documentsOfTerm[i].substring(documentsOfTerm[i].indexOf(":") + 1));
+                    Double CosSimResult = calcCosSim(docNo, tf, df, len, 0.1);
+                    Double BMResult = BM(docNo, tf, df, 0.9);
+                    if (calculateW.get(docNo) == null) {
+                        calculateW.put(docNo, CosSimResult + BMResult);
+                    } else {
+                        calculateW.put(docNo, calculateW.get(docNo) + (CosSimResult + BMResult) );
+                    }
+                }
                 reader.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -39,34 +58,48 @@ public class Ranker {
                 e.printStackTrace();
             }
         }
-        List<String> relevantDocs = sortByRank();  //todo - change it by BM
+        List<String> relevantDocs = sortByRank();
+        calculateW.clear();
         return relevantDocs;
     }
 
-    public void calcCosSim(String termInPosting , int df , int length) {
-        String term = termInPosting.substring(0,termInPosting.indexOf(":"));
-        termInPosting = termInPosting.substring(termInPosting.indexOf(":")+1);
-        String[] parts = termInPosting.split(",");
-        double idf = Math.log(indexer.getN() / df);
-        for (int i = 0; i < parts.length; i++) {
-            String docNo = parts[i].substring(0,parts[i].indexOf(":"));
-            String tf = parts[i].substring(parts[i].indexOf(":")+1);
-            Double constDivide = Math.sqrt(weights.get(docNo)*length);
-            Double weightIJ = ((Double.parseDouble(tf))*idf)/constDivide;
-            if (calculateW.get(parts[i]) == null) {
-                calculateW.put(docNo, weightIJ);
-            } else {
-                calculateW.put(docNo, calculateW.get(docNo) + weightIJ);
-            }
-        }
+    /**
+     * calculate Cosin Similarity for a given document.
+     * @param docNo
+     * @param tf
+     * @param df
+     * @param length
+     * @param percent
+     * @return
+     */
+    public Double calcCosSim(String docNo,double tf, int df, int length, double percent) {
+        double Idf = Math.log(indexer.getN() / df);
+        double constDivide = Math.sqrt(indexer.getDocuments().get(docNo).getWeight()*length);
+        Double weightIJ = (tf*Idf)/constDivide;
+        return weightIJ*percent;
     }
 
-    public void BM(String termInPosting , int df , int length){
-        double IDF = Math.log((indexer.getN()-df+0.5)/(df+0.5));
-        //double DF =
-
+    /**
+     * calculate BM25 algorithm for a given document.
+     * @param docNo
+     * @param tf
+     * @param df
+     * @param percent
+     * @return
+     */
+    public Double BM(String docNo, double tf, int df, double percent){
+        double Idf = Math.log((indexer.getN()-df+0.5)/(df+0.5));
+        Document doc = indexer.getDocuments().get(docNo);
+            double numerator = tf*doc.getLength()*(k+1);
+            double denominator = tf*doc.getLength() + k*(1-b+b*(doc.getLength()/ avgDocLength));
+            double result = Idf*(numerator/denominator);
+            return result*percent;
     }
 
+    /**
+     * sort the relevant documents for a query  by the ranknig.
+     * @return
+     */
     public List<String> sortByRank(){
         List<Map.Entry<String, Double>> forSort = new ArrayList<>(calculateW.entrySet());
         forSort.sort(new Comparator<Map.Entry<String, Double>>() {
@@ -81,9 +114,7 @@ public class Ranker {
                 return 0;
             }
         });
-        for(Map.Entry<String, Double> entry : forSort) {
-            System.out.println("Docno: " + entry.getKey() + ". Rank: " + entry.getValue());
-        }
+
         List<String> relevantDocs = new ArrayList<>();
 
         for (Map.Entry<String, Double> doc : forSort) {
