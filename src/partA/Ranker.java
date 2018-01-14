@@ -43,12 +43,12 @@ public class Ranker {
                 for (int i = 0; i < documentsOfTerm.length; i++) {
                     String docNo = documentsOfTerm[i].substring(0, documentsOfTerm[i].indexOf(":"));
                     double tf = Double.parseDouble(documentsOfTerm[i].substring(documentsOfTerm[i].indexOf(":") + 1));
-                    Double CosSimResult = calcCosSim(docNo, tf, df, len,1);
-                    Double BMResult = BM(docNo, tf, df, 1);
+                    Double CosSimResult = calcCosSim(docNo, tf, df, len,0.01);
+                    Double BMResult = BM(docNo, tf, df, 0.99);
                     if (calculateW.get(docNo) == null) {
-                        calculateW.put(docNo,BMResult);
+                        calculateW.put(docNo,CosSimResult + BMResult);
                     } else {
-                        calculateW.put(docNo, calculateW.get(docNo) + ( BMResult) );
+                        calculateW.put(docNo, calculateW.get(docNo) + ( CosSimResult) + BMResult );
                     }
                 }
                 reader.close();
@@ -116,7 +116,7 @@ public class Ranker {
         });
 
         List<String> relevantDocs = new ArrayList<>();
-        int i = 0;
+        int i = 1;
         for (Map.Entry<String, Double> doc : forSort) {
             relevantDocs.add(doc.getKey());
             if(i==50)

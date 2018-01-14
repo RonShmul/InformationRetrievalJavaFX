@@ -42,7 +42,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) throws Exception {
         //initialize controller, index and docno boolean field
         controller = new Controller();
-        //controller.getIndexer().generateIndex(locationPath);
+        controller.getIndexer().generateIndex(locationPath);
         isDocno = false;
         //Creating containers
         VBox vBox = new VBox();

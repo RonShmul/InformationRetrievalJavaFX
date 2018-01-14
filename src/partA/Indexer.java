@@ -18,6 +18,10 @@ public class Indexer {
      */
     public Indexer() {
 
+        Dictionary = new HashMap<>();
+        counterForFiles = 0;
+        cache = new HashMap<>();
+        documents = new HashMap<String, Document>();
     }
     public Indexer(String corpusPath, String filesPath, boolean toStemm) {
         this.toStemm = toStemm;
@@ -26,7 +30,7 @@ public class Indexer {
         Dictionary = new HashMap<>();
         counterForFiles = 0;
         cache = new HashMap<>();
-        documents = new HashMap<>();
+        documents = new HashMap<String, Document>();
     }
     /*
     getters and setters
@@ -72,7 +76,7 @@ public class Indexer {
      * get all the needed (indexed) files to the program memory - cache, dictionart and document data structure.
      */
     public void generateIndex(String postingPath) {
-        File file = new File(postingPath);
+        File file = new File("D:\\Posting");
 
             try {
                 String path = file.getAbsolutePath();
