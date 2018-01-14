@@ -106,7 +106,6 @@ public class Searcher {
         Document document = documents.get(docno);
         String fileName = document.getPath();
         long positionInFile = document.getPositionInFile();
-        ReadFile readFile = new ReadFile();
         String content = getTheDocumentText(corpusPath, fileName, positionInFile);
         return getFiveImportantSentences(content);
     }
