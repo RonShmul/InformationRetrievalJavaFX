@@ -102,33 +102,20 @@ public class Searcher {
     }
 
     public List<String> searchDocument(String docno, String corpusPath) {
-        String docnoEntry = null;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("documents")));
-
-            while ((docnoEntry = bufferedReader.readLine()) != null) {
-                if (docnoEntry.substring(0, docnoEntry.indexOf(':')).equals(docno)) {
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int index = docnoEntry.indexOf(':') + 1;
-        String fileName = docnoEntry.substring(index, docnoEntry.indexOf(','));
-        int indexFirstComma = docnoEntry.indexOf(',') + 1;
-        int indexSecondComma = docnoEntry.indexOf(',', indexFirstComma);
-        String positionInFile = docnoEntry.substring(indexFirstComma, indexSecondComma);
+        HashMap<String, Document> documents = ranker.getIndexer().getDocuments();
+        Document document = documents.get(docno);
+        String fileName = document.getPath();
+        long positionInFile = document.getPositionInFile();
         ReadFile readFile = new ReadFile();
         String content = getTheDocumentText(corpusPath, fileName, positionInFile);
         return getFiveImportantSentences(content);
     }
 
-    private String getTheDocumentText(String corpusPath, String fileName, String positionInFile) {
+    private String getTheDocumentText(String corpusPath, String fileName, long positionInFile) {
         String documentText = null;
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(corpusPath + "\\" + fileName + "\\" + fileName)));
-            bufferedReader.skip(Long.parseLong(positionInFile));
+            bufferedReader.skip(positionInFile);
             StringBuilder docText = new StringBuilder();
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
