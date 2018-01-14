@@ -156,4 +156,16 @@ public class Controller {
         }
         return path;
     }
+    public File chooseSaveFile() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save result");
+        File file = fc.showSaveDialog(null);
+        return file;
+    }
+    public void writeQueryResultToFile(File file, List<String> list) {
+        searcher.createQueryTextResultFile(file, list);
+    }
+    public void writeQueriesFileResultToFile(File file, HashMap<String, List<String>> list) {
+        searcher.createQueriesResultFile(file, list);
+    }
 }
