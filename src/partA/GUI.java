@@ -261,7 +261,7 @@ public class GUI extends Application {
         filesLocationBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
 
-                locationPath = controller.chooseFolder(); // todo maybe another function
+                locationPath = controller.chooseFolder();
                 locationTextField.setText(locationPath);
                 if (dataSetPath != null)
                     startBTN.setDisable(false);

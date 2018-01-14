@@ -103,7 +103,7 @@ public class Controller {
             if (index >= path.length() - 1) {
                 path = path.substring(0, index);
             }
-
+            corpusPath = path + "\\" + "corpus";
             indexer.generateIndex(path);
         }
     }

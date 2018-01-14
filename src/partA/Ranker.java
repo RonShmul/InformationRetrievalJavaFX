@@ -21,6 +21,14 @@ public class Ranker {
     }
 
     /**
+     * setter to the indexer
+     * @return
+     */
+    public Indexer getIndexer() {
+        return indexer;
+    }
+
+    /**
      * calculate the rank for a all the documents that contain the words in a given query.
      * @param query
      * @return
