@@ -40,9 +40,8 @@ public class GUI extends Application {
     private static List<File> savedFiles = new ArrayList<>();
     @Override
     public void start(Stage primaryStage) throws Exception {
-        //initialize controller, index and docno boolean field
+        //initialize controller and docno boolean field
         controller = new Controller();
-        controller.getIndexer().generateIndex(locationPath);
         isDocno = false;
         //Creating containers
         VBox vBox = new VBox();
@@ -141,7 +140,7 @@ public class GUI extends Application {
         load.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
 
-                controller.loadDictionaryAndCache();
+                controller.loadIndex();
                 showCache.setVisible(true);
                 showDictionary.setVisible(true);
 
@@ -394,7 +393,7 @@ public class GUI extends Application {
         //events
         qureiesFileBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                queriesFilePath = controller.chooseFolder();
+                queriesFilePath = controller.chooseFile();
                 QueriesFileTextBox.setText(queriesFilePath);
                 if (queriesFilePath != null &&(searchText == null || searchText.length() == 0 ))
                     run.setDisable(false);
@@ -444,7 +443,7 @@ public class GUI extends Application {
                     stage.setScene(scene);
                     stage.show();
                 } catch (Exception e) {
-                    System.out.println("there is no Docno: " + searchText); // todo: alert message
+                    openAlertMessage("there is no such Docno as: " + searchText);
                 }
             }
             else {
@@ -462,10 +461,10 @@ public class GUI extends Application {
         }
         else {
             if(searchText == null) {
-                System.out.println("no parameters"); //todo: alert message
+                openAlertMessage("There are no parameters to run");
             }
             else {
-                System.out.println("too many parameters"); //todo: alert message
+                openAlertMessage("Too many parameters to run. Please delete either DOCNO/Query text or Query file path");
             }
         }
     }
@@ -509,21 +508,30 @@ public class GUI extends Application {
         long startTime = System.currentTimeMillis();
         HashMap<String, List<String>> results = controller.getDocnosListsForQueriesFile(queriesFilePath);
         long endTime = System.currentTimeMillis();
+        List<String> totalList = new ArrayList<>();
         for(Map.Entry<String, List<String>> queryResult : results.entrySet()) {
-            Label queryText = new Label(queryResult.getKey());
+            String query = queryResult.getKey();
             List<String> docnos = queryResult.getValue();
-            Label NumOfDocnos = new Label("Number Of Documents Returned: " + docnos.size());
-            ListView<String> listView = createListView(docnos);
-            vBox.getChildren().add(queryText);
-            vBox.getChildren().add(listView);
-            vBox.getChildren().add(NumOfDocnos);
+            String NumOfDocnos = "Number Of Documents Returned: " + docnos.size();
+            totalList.add(query);
+            totalList.addAll(docnos);
+            totalList.add(NumOfDocnos);
+            totalList.add("");
         }
+        ListView<String> listView = createListView(totalList);
+        vBox.getChildren().add(listView);
         long timeTakes = (endTime - startTime)/1000;
         Label time = new Label("Time: " + timeTakes + " seconds");
         vBox.getChildren().add(time);
         return vBox;
     }
+    public void openAlertMessage(String text) {
+        Alert alert = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK, ButtonType.CANCEL);
 
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.setAlwaysOnTop(true);
+        stage.toFront();
+    }
 
     public static void main(String[] args) {
         launch(args);

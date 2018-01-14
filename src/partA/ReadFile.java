@@ -24,9 +24,6 @@ public class ReadFile {
         patternText = Pattern.compile("(?<=<TEXT>)(.*?)(?=</TEXT>)");
     }
     public ReadFile(String path){
-       // docsFile= new HashMap<String, String[]> ();
-
-        //documents = new ArrayList<Document>();
         pathStr = path;
         headDir = new File(pathStr);
         listOfDirs = headDir.listFiles();
@@ -113,21 +110,6 @@ public class ReadFile {
         else return null;
     }
 
-    //public List<Document> getDocuments() {
-   //     return documents;
-   // }
-   /* public void writedocumentsToFile() {
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("documents")));
-            for(Map.Entry<String, String[]> doc : docsFile.entrySet()) {
-                String entryToWrite = doc.getKey() + ":" + doc.getValue()[0] + "," + doc.getValue()[1];
-                bufferedWriter.write(entryToWrite + "\n");
-            }
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
     public static void main(String[] args) {
         String path = "D:\\corpus";
         //get to the main directory
@@ -146,10 +128,5 @@ public class ReadFile {
             corpus.readFile(currFile);
 
         }
-        //corpus.writedocumentsToFile();
-
-
     }
-
-
-    }
+}

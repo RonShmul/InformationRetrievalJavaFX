@@ -2,6 +2,7 @@ package partA;
 
 import javafx.collections.ObservableMap;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.util.*;
@@ -39,7 +40,7 @@ public class Controller {
     }
 
     public void setToStemm(Boolean newValue) {
-        this.toStemm = toStemm;
+        this.toStemm = newValue;
     }
 
     public boolean isToStemm() {
@@ -92,31 +93,18 @@ public class Controller {
         }
     }
 
-    public void loadDictionaryAndCache() {
+    public void loadIndex() {
         DirectoryChooser fc = new DirectoryChooser();
-        fc.setTitle("Load Dictionary And Cache");
+        fc.setTitle("Load Index Files");
         File file = fc.showDialog(null);
-        if(file != null) {
-            try {
-                String path = file.getAbsolutePath();
-                int index = path.lastIndexOf('\\');
-                if(index >= path.length()-1) {
-                    path = path.substring(0, index);
-                }
-                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "dictionary")));
-                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "cache")));
-
-                indexer.setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
-                indexer.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
-                objectInputStreamCache.close();
-                objectInputStreamDict.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+        if (file != null) {
+            String path = file.getAbsolutePath();
+            int index = path.lastIndexOf('\\');
+            if (index >= path.length() - 1) {
+                path = path.substring(0, index);
             }
-            indexer.cleanDictionary();
+
+            indexer.generateIndex(path);
         }
     }
 
@@ -152,5 +140,20 @@ public class Controller {
        HashMap<String, List<String>> result = searcher.SearchForFile(new File(filePath));
 
         return result;
+    }
+
+    public String chooseFile() {
+        DirectoryChooser fc = new DirectoryChooser();
+        fc.setTitle("Choose Folder");
+        //fc.setInitialDirectory(new File("resources"));
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Query File");
+        File file = fileChooser.showOpenDialog(null);
+        String path = null;
+        if(file != null) {
+            path = file.getAbsolutePath();
+        }
+        return path;
     }
 }

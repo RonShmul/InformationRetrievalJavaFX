@@ -76,28 +76,20 @@ public class Indexer {
      * get all the needed (indexed) files to the program memory - cache, dictionart and document data structure.
      */
     public void generateIndex(String postingPath) {
-        File file = new File("D:\\Posting");
+        try {
+            ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(postingPath + "\\" + "dictionary")));
+            ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(postingPath + "\\" + "cache")));
 
-            try {
-                String path = file.getAbsolutePath();
-                int index = path.lastIndexOf('\\');
-                if(index >= path.length()-1) {
-                    path = path.substring(0, index);
-                }
-                ObjectInputStream objectInputStreamDict = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "dictionary")));
-                ObjectInputStream objectInputStreamCache = new ObjectInputStream(new FileInputStream(new File(path + "\\" + "cache")));
-
-                setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
-                setCache((HashMap<String, String>)objectInputStreamCache.readObject());
-                objectInputStreamCache.close();
-                objectInputStreamDict.close();
-                createDocumentsMap();
-
-            } catch (IOException e) {
+            setDictionary((HashMap<String, Term>) objectInputStreamDict.readObject());
+            setCache((HashMap<String, String>)objectInputStreamCache.readObject());
+            objectInputStreamCache.close();
+            objectInputStreamDict.close();
+            createDocumentsMap(postingPath + "\\" + "documents");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        }
     }
 
     /**
@@ -808,9 +800,9 @@ public class Indexer {
     /**
      * create the documents data structure from the documents file.
      */
-    public void createDocumentsMap() {
+    public void createDocumentsMap(String path) {
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("documents")));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 //get the docno from the line
@@ -871,7 +863,7 @@ public class Indexer {
                 in.setCache((HashMap<String, String>)objectInputStreamCache.readObject());
                 objectInputStreamCache.close();
                 objectInputStreamDict.close();
-                in.createDocumentsMap();
+                //in.createDocumentsMap();
 
             } catch (IOException e) {
                 e.printStackTrace();
