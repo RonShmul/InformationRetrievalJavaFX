@@ -24,6 +24,10 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GUI extends Application {
@@ -31,12 +35,14 @@ public class GUI extends Application {
     private String locationPath;
     private Controller controller;
     private String queriesFilePath;
-    private String searchtext;
+    private String searchText;
     private boolean isDocno;
-
+    private static List<File> savedFiles = new ArrayList<>();
     @Override
     public void start(Stage primaryStage) throws Exception {
+        //initialize controller, index and docno boolean field
         controller = new Controller();
+        //controller.getIndexer().generateIndex(locationPath);
         isDocno = false;
         //Creating containers
         VBox vBox = new VBox();
@@ -143,7 +149,17 @@ public class GUI extends Application {
         }));
         reset.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                controller.reset();
+                if (savedFiles.isEmpty()) {
+                    //todo: alert message
+                } else {
+                    for (int i = 0; i < savedFiles.size(); i++) {
+                        savedFiles.get(i).delete();
+                    }
+                    savedFiles.clear();
+                    controller.getIndexer().getDictionary().clear();
+                    controller.getIndexer().getCache().clear();
+                    controller.getIndexer().getDocuments().clear();
+                }
             }
         }));
         showDictionary.setOnMouseClicked((new EventHandler<MouseEvent>() {
@@ -380,7 +396,7 @@ public class GUI extends Application {
             public void handle(MouseEvent event) {
                 queriesFilePath = controller.chooseFolder();
                 QueriesFileTextBox.setText(queriesFilePath);
-                if (queriesFilePath != null &&(searchtext == null || searchtext.length() == 0 ))
+                if (queriesFilePath != null &&(searchText == null || searchText.length() == 0 ))
                     run.setDisable(false);
                 else  run.setDisable(true);
             }
@@ -391,8 +407,8 @@ public class GUI extends Application {
                 run.setDisable(false);
         });
         searchTextBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            searchtext = newValue;
-            if (searchtext != null && (queriesFilePath == null || queriesFilePath.length() == 0 ))
+            searchText = newValue;
+            if (searchText != null && (queriesFilePath == null || queriesFilePath.length() == 0 ))
                 run.setDisable(false);
             else  run.setDisable(true);
         });
@@ -404,14 +420,10 @@ public class GUI extends Application {
         });
         run.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-               if(isDocno) {
-                   Stage stage = new Stage();
-                   Scene scene = new Scene(createFiveSentencesView(), 800, 600);
-                   stage.setScene(scene);
-                   stage.show();
-               }
+               handleForRunButton();
             }
         }));
+
         //add to grid and return it
         mainGrid.add(searchLabel, 0, 1);
         mainGrid.add(searchTextBox, 1, 1);
@@ -422,15 +434,96 @@ public class GUI extends Application {
         mainGrid.add(run, 1, 6);
         return mainGrid;
     }
+
+    private void handleForRunButton() {
+        if((searchText != null) && (queriesFilePath == null || queriesFilePath.length() == 0)) {
+            if(isDocno) {
+                try {
+                    Stage stage = new Stage();
+                    Scene scene = new Scene(createFiveSentencesView(), 800, 600);
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (Exception e) {
+                    System.out.println("there is no Docno: " + searchText); // todo: alert message
+                }
+            }
+            else {
+                Stage stage = new Stage();
+                Scene scene = new Scene(createDocnoListView(), 800, 600);
+                stage.setScene(scene);
+                stage.show();
+            }
+        }
+        else if((searchText == null|| searchText.length() == 0) && queriesFilePath != null) {
+            Stage stage = new Stage();
+            Scene scene = new Scene(getDocnosQueriesFileView(), 800, 600);
+            stage.setScene(scene);
+            stage.show();
+        }
+        else {
+            if(searchText == null && queriesFilePath == null) {
+                System.out.println("no parameters"); //todo: alert message
+            }
+            else {
+                System.out.println("too many parameters"); //todo: alert message
+            }
+        }
+    }
+
     public ListView<String> createFiveSentencesView() {
 
         //create the Table
         ListView<String> table = new ListView<String>();
         //create the observable list from the dictionary
-        ObservableList<String> data = FXCollections.observableArrayList(controller.getSentencesForDocno(searchtext));
+        ObservableList<String> data = FXCollections.observableArrayList(controller.getSentencesForDocno(searchText));
         table.setItems(data);
         return table;
     }
+
+    public VBox createDocnoListView() {
+        VBox vBox = new VBox();
+        long startTime = System.currentTimeMillis();
+        List<String> list = controller.getDocnosListForAQuery(searchText);
+        long endTime = System.currentTimeMillis();
+        int size = list.size();
+        long timeTakes = (endTime - startTime)/1000;
+        ListView<String> table = createListView(list);
+        vBox.getChildren().add(new Label("query: " + searchText));
+        vBox.getChildren().add(table);
+        vBox.getChildren().add(new Label("Time: " + timeTakes + " seconds"));
+        vBox.getChildren().add(new Label("Number Of Documents Returned: " + size));
+        return vBox;
+    }
+    public ListView<String> createListView(List<String> list) {
+
+        //create the Table
+        ListView<String> table = new ListView<String>();
+        //create the observable list from the dictionary
+        ObservableList<String> data = FXCollections.observableArrayList(list);
+        table.setItems(data);
+        return table;
+    }
+
+    public VBox getDocnosQueriesFileView() {
+        VBox vBox = new VBox();
+        long startTime = System.currentTimeMillis();
+        HashMap<String, List<String>> results = controller.getDocnosListsForQueriesFile(queriesFilePath);
+        long endTime = System.currentTimeMillis();
+        for(Map.Entry<String, List<String>> queryResult : results.entrySet()) {
+            Label queryText = new Label(queryResult.getKey());
+            List<String> docnos = queryResult.getValue();
+            Label NumOfDocnos = new Label("Number Of Documents Returned: " + docnos.size());
+            ListView<String> listView = createListView(docnos);
+            vBox.getChildren().add(queryText);
+            vBox.getChildren().add(listView);
+            vBox.getChildren().add(NumOfDocnos);
+        }
+        long timeTakes = (endTime - startTime)/1000;
+        Label time = new Label("Time: " + timeTakes + " seconds");
+        vBox.getChildren().add(time);
+        return vBox;
+    }
+
 
     public static void main(String[] args) {
         launch(args);

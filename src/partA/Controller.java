@@ -14,11 +14,12 @@ public class Controller {
     private String postingsPath;
     private String dictAndcachePath;
     private Indexer indexer;
-
+    private Searcher searcher;
 
     public Controller() {
         toStemm = false;
         indexer = new Indexer();
+        searcher = new Searcher(new Ranker(indexer));
     }
 
     public void setCorpusPath(String corpusPath) {
@@ -68,7 +69,6 @@ public class Controller {
     public void saveDictionaryAndCache() {
         DirectoryChooser fc = new DirectoryChooser();
         fc.setTitle("Save Dictionary And Cache (choose folder)");
-//        fc.setInitialDirectory(new File("resources"));
         File file = fc.showDialog(null);
         if(file != null) {
             try {
@@ -90,14 +90,11 @@ public class Controller {
                 e.printStackTrace();
             }
         }
-//        setChanged();
-//        notifyObservers();//todo check if i need it
     }
 
     public void loadDictionaryAndCache() {
         DirectoryChooser fc = new DirectoryChooser();
         fc.setTitle("Load Dictionary And Cache");
-//        fc.setInitialDirectory(new File("resources"));
         File file = fc.showDialog(null);
         if(file != null) {
             try {
@@ -121,27 +118,7 @@ public class Controller {
             }
             indexer.cleanDictionary();
         }
-
-//        setChanged();
-//        notifyObservers();
-
     }
-    /*public void dataAfterIndexing() {
-        try {
-
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("partA.fxml"));
-
-            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-            Stage stage = new Stage();
-            stage.setTitle("Indexing Is Done");
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
-            stage.show();
-        } catch (Exception e) {
-
-        }
-    }*/ //todo: Check if I need this function
 
     public List<Term> showDictionary() {
         List<Term> terms = indexer.getDictionaryForShow();
@@ -158,13 +135,22 @@ public class Controller {
         return new TreeMap<>(indexer.getCache());
     }
 
-    public void reset() {
-        indexer.resetIndex(postingsPath,dictAndcachePath+"\\"+"dictionary", dictAndcachePath+"\\"+"cache");
-    }
-
     public List<String> getSentencesForDocno(String Docno) {
         Searcher searcher = new Searcher(new Ranker(indexer));
         List<String> result = searcher.searchDocument(Docno, corpusPath);
        return result;
+    }
+
+    public List<String> getDocnosListForAQuery(String searchText) {
+        Searcher searcher = new Searcher(new Ranker(indexer));
+        List<String> result = searcher.searchForQuery(searchText);
+        return result;
+    }
+
+    public HashMap<String, List<String>> getDocnosListsForQueriesFile(String filePath) {
+        Searcher searcher = new Searcher(new Ranker(indexer));
+       HashMap<String, List<String>> result = searcher.SearchForFile(new File(filePath));
+
+        return result;
     }
 }

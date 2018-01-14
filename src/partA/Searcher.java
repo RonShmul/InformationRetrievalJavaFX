@@ -19,11 +19,10 @@ public class Searcher {
         return parsedQuery;
     }
 
-    public HashMap<String, String> parseQueriesInFile(File queryFile) {
+    public HashMap<String, String> QueriesInFile(File queryFile) {
 
-        HashMap<String, String> parsedQueries = new HashMap<>();
+        HashMap<String, String> Queries = new HashMap<>();
         try {
-            Parse parse = new Parse(isStemm, true);
             BufferedReader readQueries = new BufferedReader(new FileReader(queryFile));
             String line = readQueries.readLine();
             String query = null;
@@ -33,11 +32,11 @@ public class Searcher {
                     number = line.substring(line.indexOf(" ", line.indexOf(":")) + 1).trim();
                 }
                 if (line.contains("<title>")) {
-                    String specificQ = line.substring(line.indexOf(" ") + 1);
-                    query = parse.callParseForQuery(specificQ);
+                    query = line.substring(line.indexOf(" ") + 1);
+
                 }
                 if(number != null && query !=null) {
-                    parsedQueries.put(query, number);
+                    Queries.put(query, number);
                     number = null;
                     query = null;
                 }
@@ -46,7 +45,7 @@ public class Searcher {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return parsedQueries;
+        return Queries;
     }
 
     public List<String> searchForQuery(String query) {
@@ -57,29 +56,43 @@ public class Searcher {
         return results;
     }
 
-    public HashMap<String, List<String>> SearchForFile(File queryFile) { // todo: return with the query number or query title. note that the query is parsed, do not return it parsed to the GUI
-        HashMap<String, String> parsedQueries = parseQueriesInFile(queryFile);
+    public HashMap<String, List<String>> SearchForFile(File queryFile) {
+        HashMap<String, String> Queries = QueriesInFile(queryFile);
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
-        for (Map.Entry<String, String> query : parsedQueries.entrySet()) {
+        Parse parse = new Parse(isStemm, true);
+        for (Map.Entry<String, String> query : Queries.entrySet()) {
             String specificQueryNumber = query.getValue();
-            String specificQuery = query.getKey();
+            String specificQuery = parse.callParseForQuery(query.getKey());
             List<String> result = ranker.ranking(specificQuery);
-            results.put(specificQueryNumber, result);
+            results.put(specificQueryNumber+": "+ query.getKey() , result);
         }
         return results;
     }
 
-    public void queriesResultFile(File file) {
+    public void createQueriesResultFile(File file) {
         HashMap<String, List<String>> result = SearchForFile(file);
+        List<Map.Entry<String, List<String>>> toSort = new ArrayList<>(result.entrySet());
+        toSort.sort(new Comparator<Map.Entry<String, List<String>>>() {
+            @Override
+            public int compare(Map.Entry<String, List<String>> o1, Map.Entry<String, List<String>> o2) {
+                int q1 = Integer.parseInt(o1.getKey().substring(0, o1.getKey().indexOf(":")));
+                int q2 = Integer.parseInt(o2.getKey().substring(0, o2.getKey().indexOf(":")));
+                if(q1 < q2)
+                    return -1;
+                else if(q1 > q2)
+                    return 1;
+                return 0;
+            }
+        });
         File results = new File("C:\\Users\\sivanrej\\Downloads\\results.txt");//todo: which directory in the end?
         try {
             BufferedWriter writeToResult = new BufferedWriter(new FileWriter(results));
-            for(Map.Entry<String, List<String>> queryResult : result.entrySet()) {
+            for(Map.Entry<String, List<String>> queryResult : toSort) {
                 List<String> s = queryResult.getValue();
                 for (int i = 0; i < s.size() ; i++) {
-                    String toInsert = queryResult.getKey() + " 0 " + s.get(i) + " 1 1 mt" + "\r\n";
+                    String queryNumber = queryResult.getKey().substring(0, queryResult.getKey().indexOf(":"));
+                    String toInsert =  queryNumber + " 0 " + s.get(i) + " 1 1 mt" + "\r\n";
                     writeToResult.write(toInsert);
-                    //  System.out.println(toInsert);
                 }
             }
             writeToResult.close();
@@ -193,10 +206,10 @@ public class Searcher {
         return result;
     }
     public static void main(String[] args) {
-        Indexer indexer = new Indexer("D:\\corpus", "D:\\Postiong", false);
-        indexer.generateIndex();
+        Indexer indexer = new Indexer("D:\\corpus", "D:\\Posting", false);
+        indexer.generateIndex("D:\\Posting");
         Searcher searcher = new Searcher(new Ranker(indexer));
 
-        searcher.queriesResultFile(new File("D:\\queries.txt"));
+        searcher.createQueriesResultFile(new File("D:\\queries.txt"));
     }
     }

@@ -259,7 +259,6 @@ public class Parse {
         }
     }
     public void parse(String content) {
-        //content = content.replaceAll("-+", " "); content = content.replaceAll("[:;]", "."); content = content.replaceAll("[^A-Za-z0-9,.%$ ]","");
             int pos =0 ,index = 1;  //updating the pointers
             pos = getPosToAfterWhiteSpaces(pos, index, content);
             index = content.indexOf(" ", pos);
@@ -288,6 +287,11 @@ public class Parse {
                     for (int i = 0; i < potentialTerms.length; i++) {
                         sendTerm(potentialTerms[i].trim());
                     }
+                    if(pos == -1 || index == -1) break;
+                    pos = getPosToAfterWhiteSpaces(index+1, content.indexOf(" ", index+1), content);
+                    index = content.indexOf(" ", pos);
+                    if(pos == -1 || index == -1) break;
+                    else continue;
                 }
                 //configure the matcher with the potential term
                 Matcher numberM = numberP.matcher(potentialTerm);
