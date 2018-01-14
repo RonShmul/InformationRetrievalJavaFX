@@ -454,14 +454,14 @@ public class GUI extends Application {
                 stage.show();
             }
         }
-        else if((searchText == null|| searchText.length() == 0) && queriesFilePath != null) {
+        else if((queriesFilePath != null) && (searchText == null || searchText.length() == 0)) {
             Stage stage = new Stage();
             Scene scene = new Scene(getDocnosQueriesFileView(), 800, 600);
             stage.setScene(scene);
             stage.show();
         }
         else {
-            if(searchText == null && queriesFilePath == null) {
+            if(searchText == null) {
                 System.out.println("no parameters"); //todo: alert message
             }
             else {
