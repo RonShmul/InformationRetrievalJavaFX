@@ -48,14 +48,14 @@ public class GUI extends Application {
 
         //the start button
         Button startBTN = new Button("Start");
-
+        //part A:
         //change buttons settings
         /*startBTN.setDefaultButton(true);
         startBTN.setMinWidth(100);
         startBTN.setPadding(new Insets(5));
         startBTN.setDisable(true);*/
         //add the side grid to the hBox
-        hBox.getChildren().add(createSideGridPane(startBTN));
+        //hBox.getChildren().add(createSideGridPane(startBTN));
 
         //add the buttons grid to vBox and the vBox to hBox
         vBox.getChildren().add(createButtonsGridPane(startBTN));
@@ -144,9 +144,11 @@ public class GUI extends Application {
                     if(queriesFileResults != null) {
 
                         controller.writeQueriesFileResultToFile(file, queriesFileResults);
+                        savedFiles.add(file);
                     }
                     else{
                         controller.writeQueryResultToFile(file, queryResults);
+                        savedFiles.add(file);
                     }
                 }
             }
@@ -199,7 +201,7 @@ public class GUI extends Application {
         showDictionary.setVisible(false);
 
         //add buttons to grid
-        gridPaneforButtons.add(startBTN, 0, 0);
+        //gridPaneforButtons.add(startBTN, 0, 0);
         gridPaneforButtons.add(reset, 1, 0);
         gridPaneforButtons.add(load, 2, 0);
         gridPaneforButtons.add(save, 3, 0);
@@ -247,10 +249,6 @@ public class GUI extends Application {
         //Text field for location
         TextField locationTextField = new TextField();
 
-        //check box for stemming
-        CheckBox stemmingCheckBox = new CheckBox("Enable Stemming");
-        stemmingCheckBox.setIndeterminate(false);
-
         //Arranging all the nodes in the grid
         mainGridPane.add(datasetLabel, 0, 1);
         mainGridPane.add(dataSetTextField, 1, 1);
@@ -258,7 +256,6 @@ public class GUI extends Application {
         mainGridPane.add(locationFileLabel, 0, 2);
         mainGridPane.add(locationTextField, 1, 2);
         mainGridPane.add(filesLocationBrowse, 2, 2);
-        mainGridPane.add(stemmingCheckBox, 0, 3);
 
         //buttons events
         dataSetBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
@@ -295,12 +292,7 @@ public class GUI extends Application {
             if (dataSetPath != null)
                 startBTN.setDisable(false);
         });
-        stemmingCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                controller.setToStemm(newValue);
-            }
-        });
+
 
         //styling the buttons
         dataSetBrowse.setStyle("-fx-background-color: white; -fx-border-color: #9e9e9e; -fx-border-radius: 5");
@@ -386,7 +378,9 @@ public class GUI extends Application {
         Text searchLabel = new Text("Enter Search Query Or DOCNO:");
         TextField searchTextBox = new TextField();
         searchLabel.setStyle("-fx-font: normal 15px 'serif' ");
-
+        //check box for stemming
+        CheckBox stemmingCheckBox = new CheckBox("Enable Stemming");
+        stemmingCheckBox.setIndeterminate(false);
         //check box for Docno
         CheckBox docnoCheckBox = new CheckBox("Check It For DOCNO");
         docnoCheckBox.setIndeterminate(false);
@@ -405,6 +399,12 @@ public class GUI extends Application {
         run.setPadding(new Insets(5));
         run.setStyle("-fx-background-color: #4a8af4; -fx-textfill: black; -fx-color: black; -fx-alignment: top-center;");
         //events
+        stemmingCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                controller.setToStemm(newValue);
+            }
+        });
         qureiesFileBrowse.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 queriesFilePath = controller.chooseFile();
@@ -441,6 +441,7 @@ public class GUI extends Application {
         mainGrid.add(searchLabel, 0, 1);
         mainGrid.add(searchTextBox, 1, 1);
         mainGrid.add(docnoCheckBox, 0, 2);
+        mainGrid.add(stemmingCheckBox, 1, 2);
         mainGrid.add(QueriesFileLabel, 0, 4);
         mainGrid.add(QueriesFileTextBox, 1, 4);
         mainGrid.add(qureiesFileBrowse, 2, 4);
@@ -536,7 +537,8 @@ public class GUI extends Application {
         ListView<String> listView = createListView(totalList);
         vBox.getChildren().add(listView);
         long endTime = System.currentTimeMillis();
-        long timeTakes = (endTime - startTime)/1000;
+        double i = 1000;
+        double timeTakes = (endTime - startTime)/i;
         Label time = new Label("Time: " + timeTakes + " seconds");
         vBox.getChildren().add(time);
         return vBox;

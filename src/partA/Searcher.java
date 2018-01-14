@@ -233,7 +233,7 @@ public class Searcher {
                     terms.put(termsInSentence[j], 1);
                 }
                 if (!termsIndexes.containsKey(termsInSentence[j]))
-                    termsIndexes.put(termsInSentence[i], documentLength);
+                    termsIndexes.put(termsInSentence[j], documentLength);
                 documentLength++;
             }
             //insert the sentence with its terms and their indexes
