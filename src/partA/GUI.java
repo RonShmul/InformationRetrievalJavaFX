@@ -149,7 +149,7 @@ public class GUI extends Application {
         reset.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 if (savedFiles.isEmpty()) {
-                    //todo: alert message
+                    openAlertMessage("Nothing has saved yet..");
                 } else {
                     for (int i = 0; i < savedFiles.size(); i++) {
                         savedFiles.get(i).delete();
@@ -480,15 +480,15 @@ public class GUI extends Application {
     }
 
     public VBox createDocnoListView() {
-        VBox vBox = new VBox();
         long startTime = System.currentTimeMillis();
+        VBox vBox = new VBox();
         List<String> list = controller.getDocnosListForAQuery(searchText);
-        long endTime = System.currentTimeMillis();
         int size = list.size();
-        long timeTakes = (endTime - startTime)/1000;
         ListView<String> table = createListView(list);
         vBox.getChildren().add(new Label("query: " + searchText));
         vBox.getChildren().add(table);
+        long endTime = System.currentTimeMillis();
+        long timeTakes = (endTime - startTime)/1000;
         vBox.getChildren().add(new Label("Time: " + timeTakes + " seconds"));
         vBox.getChildren().add(new Label("Number Of Documents Returned: " + size));
         return vBox;
@@ -507,7 +507,6 @@ public class GUI extends Application {
         VBox vBox = new VBox();
         long startTime = System.currentTimeMillis();
         HashMap<String, List<String>> results = controller.getDocnosListsForQueriesFile(queriesFilePath);
-        long endTime = System.currentTimeMillis();
         List<String> totalList = new ArrayList<>();
         for(Map.Entry<String, List<String>> queryResult : results.entrySet()) {
             String query = queryResult.getKey();
@@ -520,6 +519,7 @@ public class GUI extends Application {
         }
         ListView<String> listView = createListView(totalList);
         vBox.getChildren().add(listView);
+        long endTime = System.currentTimeMillis();
         long timeTakes = (endTime - startTime)/1000;
         Label time = new Label("Time: " + timeTakes + " seconds");
         vBox.getChildren().add(time);
