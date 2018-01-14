@@ -15,10 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -38,6 +35,8 @@ public class GUI extends Application {
     private String searchText;
     private boolean isDocno;
     private static List<File> savedFiles = new ArrayList<>();
+    private HashMap<String, List<String>> queriesFileResults;
+    private List<String> queryResults;
     @Override
     public void start(Stage primaryStage) throws Exception {
         //initialize controller and docno boolean field
@@ -51,10 +50,10 @@ public class GUI extends Application {
         Button startBTN = new Button("Start");
 
         //change buttons settings
-        startBTN.setDefaultButton(true);
+        /*startBTN.setDefaultButton(true);
         startBTN.setMinWidth(100);
         startBTN.setPadding(new Insets(5));
-        startBTN.setDisable(true);
+        startBTN.setDisable(true);*/
         //add the side grid to the hBox
         hBox.getChildren().add(createSideGridPane(startBTN));
 
@@ -116,7 +115,8 @@ public class GUI extends Application {
         reset.setPadding(new Insets(5));
 
         //events to buttons
-        startBTN.setOnMouseClicked((new EventHandler<MouseEvent>() {
+        //Part A:
+        /*startBTN.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
 
                 if (!showCache.isVisible() || !showDictionary.isVisible() || !save.isVisible()) {
@@ -132,9 +132,23 @@ public class GUI extends Application {
         }));
         save.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-
                 controller.saveDictionaryAndCache();
+            }
+        }));*/
+        save.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                File file = controller.chooseSaveFile();
+                if(queryResults == null && queriesFileResults == null)
+                    openAlertMessage("nothing has run yet..");
+                else {
+                    if(queriesFileResults != null) {
 
+                        controller.writeQueriesFileResultToFile(file, queriesFileResults);
+                    }
+                    else{
+                        controller.writeQueryResultToFile(file, queryResults);
+                    }
+                }
             }
         }));
         load.setOnMouseClicked((new EventHandler<MouseEvent>() {
@@ -179,8 +193,8 @@ public class GUI extends Application {
         }));
 
         //default not shown
-        save.setVisible(false);
-        reset.setDisable(true);
+        //save.setVisible(false);
+        //reset.setDisable(true);
         showCache.setVisible(false);
         showDictionary.setVisible(false);
 
@@ -483,6 +497,7 @@ public class GUI extends Application {
         long startTime = System.currentTimeMillis();
         VBox vBox = new VBox();
         List<String> list = controller.getDocnosListForAQuery(searchText);
+        queryResults = list;
         int size = list.size();
         ListView<String> table = createListView(list);
         vBox.getChildren().add(new Label("query: " + searchText));
@@ -507,6 +522,7 @@ public class GUI extends Application {
         VBox vBox = new VBox();
         long startTime = System.currentTimeMillis();
         HashMap<String, List<String>> results = controller.getDocnosListsForQueriesFile(queriesFilePath);
+        queriesFileResults = results;
         List<String> totalList = new ArrayList<>();
         for(Map.Entry<String, List<String>> queryResult : results.entrySet()) {
             String query = queryResult.getKey();
@@ -527,10 +543,7 @@ public class GUI extends Application {
     }
     public void openAlertMessage(String text) {
         Alert alert = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK, ButtonType.CANCEL);
-
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.setAlwaysOnTop(true);
-        stage.toFront();
+       alert.showAndWait();
     }
 
     public static void main(String[] args) {

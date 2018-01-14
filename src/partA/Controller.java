@@ -41,6 +41,7 @@ public class Controller {
 
     public void setToStemm(Boolean newValue) {
         this.toStemm = newValue;
+        indexer.setToStemm(newValue);
     }
 
     public boolean isToStemm() {

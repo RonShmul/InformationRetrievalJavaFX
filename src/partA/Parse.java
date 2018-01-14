@@ -238,6 +238,12 @@ public class Parse {
      * @param term
      */
     public void forParsedQuery(String term){
+        if (isStemm) {
+            Stemmer stemmer = new Stemmer();
+            stemmer.add(term.toCharArray(), term.length());
+            stemmer.stem();
+            term = stemmer.toString();
+        }
         if(parsedQuery.equals(""))
             parsedQuery = term;
         else{

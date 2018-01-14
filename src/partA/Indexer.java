@@ -64,6 +64,10 @@ public class Indexer {
         return toStemm;
     }
 
+    public void setToStemm(boolean toStemm) {
+        this.toStemm = toStemm;
+    }
+
     public HashMap<String, Document> getDocuments() {
         return documents;
     }
