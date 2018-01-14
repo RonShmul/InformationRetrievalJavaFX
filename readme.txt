@@ -1,19 +1,7 @@
 We developed in Java. The GUI is JavaFX.
 
-get the running jar file from the directory: \InformationRetrieval-Part A- WithGUI\out\artifacts\InformationRetrieval_Part_A__WithGUI_jar
-Choose DataSet text box is for the corpus folder path. Please choose the folder with all the folders files in it.
-Choose Files Location text box is for saving the postings files.Please choose a real directory.
-For your convenient please use the "Browse" buttons to get the directory's path.
-
-You can enable the Stemming or disable it with the check box - "Enable Stemming".
-
-Please press on the "start" button to operate the program and build the cache.
-wait for it...
-when the process is done (running 1 hour).
-
-The "save" button will apear to save the cache and dictionary, and the show buttons will apear to show them.
-you can load the cache and dictionary with the load buttom.
-
-both save and load buttons will open dialog window to choose a folder to save it to or load it from. we chose the names of the files as "dictionary" and "cache".
-
-you can use the reset button to delete all the files.
+Run the GUI class. please press "load" to load the index files before doing anything. The folder of the index files should contain the "corpus" folder, posting files and "documents" file. If you want to use the stemming option - please load a folder with index files that was indexed with stemmer, and then check the "Enable stemming" check box. After loading, the "show dictionary" and "show cache" buttons will be available for your use.
+The first text field is for a query text or DOCNO. If you insert DOCNO you should check the "Check it for DOCNO" check box.
+The second text field is for a path to a queries file. for your convenient on the right of that text field there is a browse button to choose the file. Please note that you cannot insert to both text fields and should leave one of them empty. press "run" to search the wanted parameter. After few seconds a window with the results will be opened.
+"Save" button will save the last query that was run - choose a directory and file name - it will save the results in the TRECEVAL format.
+you can use the reset button to delete all the result files and clear the index files from the program's memory.
