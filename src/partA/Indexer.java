@@ -601,7 +601,7 @@ public class Indexer {
         }
     }
     /**
-     * method to write teh documents data structure to a file.
+     * method to write the documents data structure to a file.
      */
     public void insertDocumentsToFile() {
         try {

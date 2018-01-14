@@ -5,38 +5,46 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class Searcher {
-    //private File queryFile;  //todo - dont forget in the gui change the path to file
-    private boolean isStemm;
     private Ranker ranker;
 
-    public Searcher(Ranker ranker) {
+    public Searcher(Ranker ranker) { //constructor
         this.ranker = ranker;
     }
 
+    /**
+     * parsing the query
+     * @param query
+     * @return
+     */
     public String parseQuery(String query) {
-        Parse parse = new Parse(isStemm, true);
+        Parse parse = new Parse(ranker.getIndexer().isToStemm(), true);  //create parse for the query
         String parsedQuery = parse.callParseForQuery(query);
         return parsedQuery;
     }
 
+    /**
+     * insert query number and query content into a hashMap
+     * @param queryFile
+     * @return
+     */
     public HashMap<String, String> QueriesInFile(File queryFile) {
 
         HashMap<String, String> Queries = new HashMap<>();
         try {
             BufferedReader readQueries = new BufferedReader(new FileReader(queryFile));
-            String line = readQueries.readLine();
+            String line = readQueries.readLine();  //read from the query file
             String query = null;
             String number=null;
             while (line != null) {
-                if(line.contains("<num>")) {
+                if(line.contains("<num>")) {  //find the query's number
                     number = line.substring(line.indexOf(" ", line.indexOf(":")) + 1).trim();
                 }
-                if (line.contains("<title>")) {
+                if (line.contains("<title>")) {   //find the query's content
                     query = line.substring(line.indexOf(" ") + 1);
 
                 }
                 if(number != null && query !=null) {
-                    Queries.put(query, number);
+                    Queries.put(query, number);   //insert number and content to hashMap
                     number = null;
                     query = null;
                 }
@@ -48,19 +56,28 @@ public class Searcher {
         return Queries;
     }
 
+    /**
+     * returns the relevant DOCNOs for a specific query
+     * @param query
+     * @return
+     */
     public List<String> searchForQuery(String query) {
-        String nQuery = query+" ";
-        String parsedQuery = parseQuery(nQuery);
-        //System.out.println(parsedQuery);
-        List<String> results = ranker.ranking(parsedQuery);
+        String nQuery = query+" ";  //the parser works with space in the end
+        String parsedQuery = parseQuery(nQuery);  //send the query to parse
+        List<String> results = ranker.ranking(parsedQuery);  // the ranking is in the Ranker class
         return results;
     }
 
+    /**
+     * returns relevant DOCNOs for each query in the file
+     * @param queryFile
+     * @return
+     */
     public HashMap<String, List<String>> SearchForFile(File queryFile) {
         HashMap<String, String> Queries = QueriesInFile(queryFile);
         HashMap<String, List<String>> results = new HashMap<String, List<String>>();
-        Parse parse = new Parse(isStemm, true);
-        for (Map.Entry<String, String> query : Queries.entrySet()) {
+        Parse parse = new Parse(ranker.getIndexer().isToStemm(), true);
+        for (Map.Entry<String, String> query : Queries.entrySet()) { //for each query send it to parse and then to ranking
             String specificQueryNumber = query.getValue();
             String specificQuery = parse.callParseForQuery(query.getKey());
             List<String> result = ranker.ranking(specificQuery);
@@ -69,7 +86,7 @@ public class Searcher {
         return results;
     }
 
-    public void createQueriesResultFile(File file) {
+    public void createQueriesResultFile(File file) {  //todo - Write a description in the doch
         HashMap<String, List<String>> result = SearchForFile(file);
         List<Map.Entry<String, List<String>>> toSort = new ArrayList<>(result.entrySet());
         toSort.sort(new Comparator<Map.Entry<String, List<String>>>() {
@@ -122,7 +139,6 @@ public class Searcher {
                 docText.append(" ");
                 if (line.length() <= 8 && line.contains("</TEXT>")) {
                     break;
-
                 }
             }
             documentText = docText.toString();
