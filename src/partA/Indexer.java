@@ -60,6 +60,10 @@ public class Indexer {
         return terms;
     }
 
+    public boolean isToStemm() {
+        return toStemm;
+    }
+
     public HashMap<String, Document> getDocuments() {
         return documents;
     }
